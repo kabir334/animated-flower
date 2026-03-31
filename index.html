@@ -1,99 +1,196 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>WORKING SIMID</title>
-    <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; overflow: hidden; }
-        #ad-layer {
-            display: none; /* Hidden until Player:start */
-            width: 100%; height: 100%;
-            position: absolute; top: 0; left: 0;
-            background: rgba(255, 0, 0, 0.5); /* Red tint so you SEE it */
-            color: white; flex-direction: column; justify-content: center; align-items: center;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>SIMID Creative</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: transparent;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    #ad-layer {
+      display: none;
+      width: 100%; height: 100%;
+      position: absolute; top: 0; left: 0;
+      background: rgba(0, 0, 0, 0.6);
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #ad-layer.show { display: flex; }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 32px 36px;
+      max-width: 420px;
+      width: 88%;
+      text-align: center;
+      position: relative;
+    }
+
+    .card h1 { font-size: 22px; color: #1a1a1a; margin-bottom: 10px; }
+    .card p  { font-size: 15px; color: #555; line-height: 1.6; margin-bottom: 24px; }
+
+    #cta-btn {
+      background: #e63946; color: #fff;
+      font-size: 16px; font-weight: 600;
+      padding: 13px 32px; border-radius: 50px;
+      border: none; cursor: pointer;
+    }
+
+    #close-btn {
+      position: absolute; top: 10px; right: 10px;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #eee; border: none;
+      cursor: pointer; font-size: 16px;
+    }
+  </style>
 </head>
 <body>
-    <div id="ad-layer">
-        <h1>SIMID IS WORKING!</h1>
-        <button id="cta" style="padding:20px;">CLICK ME</button>
+
+  <div id="ad-layer">
+    <div class="card">
+      <button id="close-btn">✕</button>
+      <h1>Discover Something New</h1>
+      <p>Limited time offer — tap below to explore.</p>
+      <button id="cta-btn">Shop Now</button>
     </div>
+  </div>
 
-    <script>
-        (function() {
-            console.log("🚩 CHECKPOINT 1: Script started");
+<script>
+(function () {
 
-var sessionId = null;
-var msgId = 1;
+  /* ─── state ─────────────────────────────────────────────────── */
+  var sessionId = null;
+  var msgId     = 1;
+  var gotInit   = false;
 
-// 1. Unified Send Function
-function sendToPlayer(name, correlationId) {
+  /* ─── helpers ───────────────────────────────────────────────── */
+  function normalize(s) { return (s || '').toLowerCase(); }
+  function contains(s, kw) { return normalize(s).indexOf(kw) !== -1; }
+
+  function send(name, args, correlationId) {
     var msg = {
-        sessionId: sessionId,
-        messageId: msgId++,
-        messageName: "SIMID:Creative:" + name,
-        type: "SIMID:Creative:" + name,
-        timestamp: Date.now(),
-        version: "1.0",
-        args: {}
+      sessionId:   sessionId,
+      messageId:   msgId++,
+      type:        'SIMID:Creative:' + name,
+      messageName: 'SIMID:Creative:' + name,
+      timestamp:   Date.now(),
+      version:     '1.1',
+      args:        args || {}
     };
-    if (correlationId) msg.correlationId = correlationId;
-    
-    console.log(">> SENDING msg to:", name);
-    window.parent.postMessage(msg, "*");
-}
+    if (correlationId != null) msg.correlationId = correlationId;
+    console.log('[SIMID >>]', msg.type, msg);
+    window.parent.postMessage(msg, '*');
+  }
 
-// 2. Robust Listener
-window.addEventListener('message', function(event) {
+  function showAd() {
+    var el = document.getElementById('ad-layer');
+    if (el) el.classList.add('show');
+    console.log('[SIMID] overlay shown');
+  }
+
+  function hideAd() {
+    var el = document.getElementById('ad-layer');
+    if (el) el.classList.remove('show');
+  }
+
+  /* ─── message listener ──────────────────────────────────────── */
+  window.addEventListener('message', function (event) {
     var data = event.data;
-    
-    // Handle String vs Object
     if (typeof data === 'string') {
-        try { data = JSON.parse(data); } catch(e) { return; }
+      try { data = JSON.parse(data); } catch (e) { return; }
     }
-    
     if (!data) return;
-    console.log("<< RECEIVED:", (data.messageName || data.type), data);
 
-    // Capture Session ID
-    if (data.sessionId) {
-        sessionId = data.sessionId;
+    var type = data.type || data.messageName || '';
+    console.log('[SIMID <<]', type, data);
+
+    /* always capture sessionId when it arrives */
+    if (data.sessionId) sessionId = data.sessionId;
+
+    /* ── init: player is ready, complete the handshake ───────── */
+    if (contains(type, 'player:init') || contains(type, ':init')) {
+      gotInit   = true;
+      sessionId = data.sessionId || sessionId;
+      send('resolve', {
+        /* tell the player what we support */
+        capabilities: {
+          skipAd:             false,
+          customClose:        false,
+          variableDuration:   false,
+          fullscreen:         false
+        }
+      }, data.messageId);
+      return;
     }
 
-    // Resolve EVERYTHING the player sends to keep it happy
-    if (data.messageId) {
-        sendToPlayer("resolve", data.messageId);
+    /* ── start: video is playing, show the overlay ───────────── */
+    if (contains(type, 'player:start') || contains(type, 'media:play')) {
+      send('resolve', {}, data.messageId);
+      showAd();
+      return;
     }
 
-    // Show UI on Start
-    var name = (data.messageName || data.type || "");
-    if (name.indexOf("Player:start") !== -1) {
-        var el = document.getElementById('ad-layer');
-        if (el) el.style.display = 'flex';
+    /* ── stop / complete / skip: hide overlay ────────────────── */
+    if (contains(type, 'stop') || contains(type, 'complete') ||
+        contains(type, 'skip') || contains(type, 'adstopped')) {
+      send('resolve', {}, data.messageId);
+      hideAd();
+      return;
     }
-});
 
-console.log("🚩 CHECKPOINT 2: Listener attached");
-
-// 3. The Handshake Loop
-var handshake = setInterval(function() {
-    if (sessionId) {
-        console.log("✅ Handshake stopped. Session active.");
-        clearInterval(handshake);
-        return;
+    /* ── everything else: just resolve so player doesn't time out */
+    if (data.messageId != null) {
+      send('resolve', {}, data.messageId);
     }
-    
-    console.log("🔄 CHECKPOINT 3: Requesting createSession...");
-    window.parent.postMessage({
-        messageId: msgId++,
-        messageName: 'SIMID:Creative:createSession',
-        type: 'SIMID:Creative:createSession',
-        timestamp: Date.now(),
-        version: "1.0",
-        args: {}
-    }, "*");
-}, 1000);
-        })();
-    </script>
+  });
+
+  /* ─── CTA / close buttons ───────────────────────────────────── */
+  document.getElementById('cta-btn').addEventListener('click', function () {
+    send('clickThru', { clickThruUrl: 'https://google.com', id: 'cta' });
+  });
+
+  document.getElementById('close-btn').addEventListener('click', function () {
+    hideAd();
+    send('closeCreative', {});
+  });
+
+  /* ─────────────────────────────────────────────────────────────
+   * THE CRITICAL PART:
+   *
+   * The player sends SIMID:Player:init ONCE, right after the iframe
+   * loads. If the creative's message listener isn't attached yet,
+   * that message is lost and the handshake never completes — which
+   * is exactly what you're seeing (sessionId stays null forever).
+   *
+   * Fix: send createSession IMMEDIATELY and SYNCHRONOUSLY right here,
+   * before the browser even paints a frame. This tells the player
+   * "I'm alive and my listener is ready — please send init again."
+   * The player will then re-send SIMID:Player:init and the handshake
+   * will complete normally.
+   * ─────────────────────────────────────────────────────────────*/
+  console.log('[SIMID] sending createSession immediately...');
+  window.parent.postMessage({
+    sessionId:   null,
+    messageId:   msgId++,
+    type:        'SIMID:Creative:createSession',
+    messageName: 'SIMID:Creative:createSession',
+    timestamp:   Date.now(),
+    version:     '1.1',
+    args:        {}
+  }, '*');
+
+  console.log('[SIMID] listener ready, createSession sent.');
+
+})();
+</script>
 </body>
 </html>
