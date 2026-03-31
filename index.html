@@ -23,7 +23,7 @@
         (function() {
             console.log("🚩 CHECKPOINT 1: Script started");
 
-var sessionId = 12;
+var sessionId = null;
 var msgId = 1;
 
 // 1. Unified Send Function
@@ -38,7 +38,7 @@ function sendToPlayer(name, correlationId) {
     };
     if (correlationId) msg.correlationId = correlationId;
     
-    console.log(">> SENDING msg:", name);
+    console.log(">> SENDING msg to:", name);
     window.parent.postMessage(msg, "*");
 }
 
