@@ -48,15 +48,15 @@
 
                 // THE CRITICAL "IAB" SWITCH
                 switch (data.type) {
-                    case 'SIMID:Player:init':
+                    case 'SIMID:Media:play':
                         send('resolve', data.messageId);
                         break;
-                    case 'SIMID:Player:start':
+                    case 'SIMID:Media:start':
                         send('resolve', data.messageId);
                         // SHOW THE AD
                         document.getElementById('ad-layer').style.display = 'flex';
                         break;
-                    case 'SIMID:Player:adStopped':
+                    case 'SIMID:Media:adStopped':
                         send('resolve', data.messageId);
                         break;
                     default:
