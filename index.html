@@ -2,163 +2,355 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>SIMID Test Player</title>
+  <title>SIMID Creative</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #111; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: Arial, sans-serif; }
-
-    #player-wrap {
+    html, body {
+      width: 100%; height: 100%;
+      background: transparent;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+    #overlay {
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 28px 32px;
+      width: 85%; max-width: 400px;
+      text-align: center;
       position: relative;
-      width: 640px;
-      height: 360px;
-      background: #000;
     }
-
-    #content-video {
-      width: 100%; height: 100%;
-      display: block;
+    h2 { font-size: 22px; color: #111; margin-bottom: 10px; }
+    p  { font-size: 14px; color: #555; line-height: 1.5; margin-bottom: 22px; }
+    #cta {
+      display: block; width: 100%;
+      background: #e63946; color: #fff;
+      border: none; border-radius: 40px;
+      padding: 13px; font-size: 15px; font-weight: bold;
+      cursor: pointer; margin-bottom: 10px;
     }
-
-    /* Ad container sits on top of the video, same size */
-    #ad-container {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none; /* let clicks through to video unless ad is active */
-    }
-
-    #ad-container.active {
-      pointer-events: all;
-    }
-
-    #play-btn {
-      margin-top: 20px;
-      padding: 12px 32px;
-      background: #e63946;
-      color: #fff;
-      border: none;
-      border-radius: 40px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    #status {
-      margin-top: 12px;
-      color: #aaa;
-      font-size: 13px;
+    #close_btn {
+      position: absolute; top: 8px; right: 10px;
+      background: none; border: none;
+      font-size: 18px; color: #999; cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-  <div id="player-wrap">
-    <video id="content-video" playsinline>
-      <source src="https://storage.googleapis.com/interactive-media-ads/media/android.mp4" type="video/mp4">
-    </video>
-    <!-- IMA renders the ad iframe inside this div -->
-    <div id="ad-container"></div>
+<div id="overlay">
+  <div class="card">
+    <button id="close_btn">&#x2715;</button>
+    <h2>Special Offer</h2>
+    <p>Tap below to explore our latest collection.</p>
+    <button id="cta">Shop Now</button>
   </div>
+</div>
 
-  <button id="play-btn">Play Ad</button>
-  <div id="status">Click "Play Ad" to start</div>
+<script>
+/**
+ * SimidProtocol — exact copy from:
+ * https://github.com/InteractiveAdvertisingBureau/SIMID/blob/master/examples/simid_protocol.js
+ */
+const ProtocolMessage = {
+  CREATE_SESSION: 'createSession',
+  RESOLVE: 'resolve',
+  REJECT: 'reject',
+};
 
-  <!-- Google IMA HTML5 SDK -->
-  <script src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
+const MediaMessage = {
+  DURATION_CHANGE: 'Media:durationchange',
+  ENDED:           'Media:ended',
+  ERROR:           'Media:error',
+  PAUSE:           'Media:pause',
+  PLAY:            'Media:play',
+  PLAYING:         'Media:playing',
+  SEEKED:          'Media:seeked',
+  SEEKING:         'Media:seeking',
+  TIME_UPDATE:     'Media:timeupdate',
+  VOLUME_CHANGE:   'Media:volumechange',
+};
 
-  <script>
-    var video       = document.getElementById('content-video');
-    var adContainer = document.getElementById('ad-container');
-    var playBtn     = document.getElementById('play-btn');
-    var statusEl    = document.getElementById('status');
+const PlayerMessage = {
+  RESIZE:          'Player:resize',
+  INIT:            'Player:init',
+  LOG:             'Player:log',
+  START_CREATIVE:  'Player:startCreative',
+  AD_SKIPPED:      'Player:adSkipped',
+  AD_STOPPED:      'Player:adStopped',
+  FATAL_ERROR:     'Player:fatalError',
+};
 
-    var adsLoader, adsManager;
+const CreativeMessage = {
+  CLICK_THRU:               'Creative:clickThru',
+  FATAL_ERROR:              'Creative:fatalError',
+  GET_MEDIA_STATE:          'Creative:getMediaState',
+  LOG:                      'Creative:log',
+  REQUEST_FULL_SCREEN:      'Creative:requestFullScreen',
+  REQUEST_EXIT_FULL_SCREEN: 'Creative:requestExitFullScreen',
+  REQUEST_SKIP:             'Creative:requestSkip',
+  REQUEST_STOP:             'Creative:requestStop',
+  REQUEST_PAUSE:            'Creative:requestPause',
+  REQUEST_PLAY:             'Creative:requestPlay',
+  REQUEST_RESIZE:           'Creative:requestResize',
+  REQUEST_VOLUME:           'Creative:requestVolume',
+  REQUEST_TRACKING:         'Creative:reportTracking',
+  REQUEST_CHANGE_AD_DURATION: 'Creative:requestChangeAdDuration',
+};
 
-    function setStatus(msg) {
-      statusEl.textContent = msg;
-      console.log('[Player]', msg);
+const EventsThatRequireResponse = [
+  CreativeMessage.GET_MEDIA_STATE,
+  CreativeMessage.CLICK_THRU,
+  CreativeMessage.REQUEST_SKIP,
+  CreativeMessage.REQUEST_STOP,
+  CreativeMessage.REQUEST_PAUSE,
+  CreativeMessage.REQUEST_PLAY,
+  CreativeMessage.REQUEST_FULL_SCREEN,
+  CreativeMessage.REQUEST_EXIT_FULL_SCREEN,
+  CreativeMessage.REQUEST_VOLUME,
+  CreativeMessage.REQUEST_RESIZE,
+  CreativeMessage.REQUEST_CHANGE_AD_DURATION,
+  PlayerMessage.INIT,
+  PlayerMessage.START_CREATIVE,
+  PlayerMessage.AD_SKIPPED,
+  PlayerMessage.AD_STOPPED,
+  PlayerMessage.FATAL_ERROR,
+  ProtocolMessage.CREATE_SESSION,
+];
+
+class SimidProtocol {
+  constructor() {
+    this.listeners_ = {};
+    this.sessionId_ = '';
+    this.nextMessageId_ = 1;
+    this.target_ = window.parent;
+    this.resolutionListeners_ = {};
+    window.addEventListener('message', this.receiveMessage.bind(this), false);
+  }
+
+  reset() {
+    this.listeners_ = {};
+    this.sessionId_ = '';
+    this.nextMessageId_ = 1;
+    this.resolutionListeners_ = {};
+  }
+
+  sendMessage(messageType, messageArgs) {
+    const messageId = this.nextMessageId_++;
+    const nameSpacedMessage =
+      messageType === ProtocolMessage.CREATE_SESSION
+        ? messageType
+        : 'SIMID:' + messageType;
+
+    const message = {
+      sessionId:  this.sessionId_,
+      messageId:  messageId,
+      type:       nameSpacedMessage,
+      timestamp:  Date.now(),
+      args:       messageArgs,
+    };
+
+    if (EventsThatRequireResponse.includes(messageType)) {
+      return new Promise((resolve, reject) => {
+        this.addResolveRejectListener_(messageId, resolve, reject);
+        this.target_.postMessage(JSON.stringify(message), '*');
+      });
     }
 
-    /* ── 1. Initialise IMA ── */
-    function initIMA() {
-      var adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, video);
-      adDisplayContainer.initialize();
+    return new Promise((resolve) => {
+      this.target_.postMessage(JSON.stringify(message), '*');
+      resolve();
+    });
+  }
 
-      adsLoader = new google.ima.AdsLoader(adDisplayContainer);
-      adsLoader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, onAdsManagerLoaded);
-      adsLoader.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError);
-
-      video.addEventListener('ended', function() {
-        adsLoader.contentComplete();
-      });
-
-      /* ── 2. Request the ad ── */
-      var req = new google.ima.AdsRequest();
-
-      /*
-       * REPLACE THIS with your own VAST tag URL.
-       * This is the Google SIMID sample tag — it uses a creative hosted
-       * on googleads.github.io so VSI works with it.
-       * Your Netlify-hosted creative will work fine here because this
-       * page sends postMessage with targetOrigin:'*', not locked to github.io
-       */
-      req.adTagUrl =
-        'https://pubads.g.doubleclick.net/gampad/ads?' +
-        'iu=/21775744923/external/simid_test&' +
-        'description_url=https%3A%2F%2Fdevelopers.google.com&' +
-        'tfcd=0&npa=0&sz=640x480&gdfp_req=1&output=vast&' +
-        'unviewed_position_start=1&env=vp&impl=s&correlator=';
-
-      req.linearAdSlotWidth  = 640;
-      req.linearAdSlotHeight = 360;
-      req.nonLinearAdSlotWidth  = 640;
-      req.nonLinearAdSlotHeight = 360;
-
-      adsLoader.requestAds(req);
-      setStatus('Requesting ad...');
+  addListener(messageType, callback) {
+    if (!this.listeners_[messageType]) {
+      this.listeners_[messageType] = [callback];
+    } else {
+      this.listeners_[messageType].push(callback);
     }
+  }
 
-    /* ── 3. Ads manager loaded ── */
-    function onAdsManagerLoaded(e) {
-      adsManager = e.getAdsManager(video);
-      adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError);
-      adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, onAllAdsCompleted);
-      adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, function() {
-        setStatus('Ad playing...');
-        adContainer.classList.add('active');
-      });
-      adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE, function() {
-        setStatus('Ad complete. Playing content.');
-        adContainer.classList.remove('active');
-        video.play();
-      });
+  addResolveRejectListener_(messageId, resolve, reject) {
+    const listener = (data) => {
+      const type = data['type'];
+      const args = data['args']['value'];
+      if (type === 'resolve') resolve(args);
+      else if (type === 'reject') reject(args);
+    };
+    this.resolutionListeners_[messageId] = listener.bind(this);
+  }
 
-      try {
-        adsManager.init(640, 360, google.ima.ViewMode.NORMAL);
-        adsManager.start();
-        setStatus('Ad started.');
-      } catch(e) {
-        console.error('AdsManager error:', e);
-        video.play();
+  receiveMessage(event) {
+    if (!event || !event.data) return;
+
+    let data;
+    try {
+      data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+    } catch (e) { return; }
+    if (!data) return;
+
+    const sessionId = data['sessionId'];
+    const type = data['type'];
+
+    const isCreatingSession =
+      this.sessionId_ === '' && type === ProtocolMessage.CREATE_SESSION;
+    const isSessionIdMatch = this.sessionId_ === sessionId;
+    const validSessionId = isCreatingSession || isSessionIdMatch;
+
+    if (!validSessionId || type == null) return;
+
+    if (Object.values(ProtocolMessage).includes(type)) {
+      this.handleProtocolMessage_(data);
+    } else if (type.startsWith('SIMID:')) {
+      const specificType = type.substr(6);
+      const listeners = this.listeners_[specificType];
+      if (listeners) listeners.forEach((l) => l(data));
+    }
+  }
+
+  handleProtocolMessage_(data) {
+    const type = data['type'];
+    switch (type) {
+      case ProtocolMessage.CREATE_SESSION:
+        this.sessionId_ = data['sessionId'];
+        this.resolve(data);
+        const listeners = this.listeners_[type];
+        if (listeners) listeners.forEach((l) => l(data));
+        break;
+      case ProtocolMessage.RESOLVE:
+      case ProtocolMessage.REJECT: {
+        const args = data['args'];
+        const correlatingId = args['messageId'];
+        const fn = this.resolutionListeners_[correlatingId];
+        if (fn) {
+          fn(data);
+          delete this.resolutionListeners_[correlatingId];
+        }
+        break;
       }
     }
+  }
 
-    function onAdError(e) {
-      setStatus('Ad error: ' + e.getError());
-      console.error('Ad error:', e.getError());
-      if (adsManager) adsManager.destroy();
-      video.play();
-    }
+  resolve(incomingMessage, outgoingArgs) {
+    const messageId = this.nextMessageId_++;
+    const message = {
+      sessionId:  this.sessionId_,
+      messageId:  messageId,
+      type:       ProtocolMessage.RESOLVE,
+      timestamp:  Date.now(),
+      args:       { messageId: incomingMessage['messageId'], value: outgoingArgs },
+    };
+    this.target_.postMessage(JSON.stringify(message), '*');
+  }
 
-    function onAllAdsCompleted() {
-      setStatus('All ads complete.');
-      adContainer.classList.remove('active');
-    }
+  reject(incomingMessage, outgoingArgs) {
+    const messageId = this.nextMessageId_++;
+    const message = {
+      sessionId:  this.sessionId_,
+      messageId:  messageId,
+      type:       ProtocolMessage.REJECT,
+      timestamp:  Date.now(),
+      args:       { messageId: incomingMessage['messageId'], value: outgoingArgs },
+    };
+    this.target_.postMessage(JSON.stringify(message), '*');
+  }
 
-    /* ── Play button ── */
-    playBtn.addEventListener('click', function() {
-      playBtn.disabled = true;
-      initIMA();
+  createSession() {
+    this.generateSessionId_();
+    this.sendMessage(ProtocolMessage.CREATE_SESSION).then(
+      () => console.log('[SIMID] session created.'),
+      () => console.log('[SIMID] session creation rejected.')
+    );
+  }
+
+  generateSessionId_() {
+    const random16Uint8s = new Uint8Array(16);
+    window.crypto.getRandomValues(random16Uint8s);
+    const random32Uint4s = Array.from(Array(32).keys()).map(index => {
+      const isEven = index % 2 === 0;
+      const randomUint8 = random16Uint8s[Math.floor(index / 2)];
+      return isEven ? (randomUint8 >> 4) : (randomUint8 & 15);
     });
-  </script>
+    random32Uint4s[12] = 4;
+    random32Uint4s[16] = 0b1000 | (random32Uint4s[16] & 0b0011);
+    const hexDigits = random32Uint4s.map(v => v.toString(16));
+    this.sessionId_ = [
+      hexDigits.slice(0, 8).join(''),
+      hexDigits.slice(8, 12).join(''),
+      hexDigits.slice(12, 16).join(''),
+      hexDigits.slice(16, 20).join(''),
+      hexDigits.slice(20).join(''),
+    ].join('-');
+  }
+
+  setMessageTarget(target) {
+    this.target_ = target;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+ * Creative logic — uses SimidProtocol exactly as base_simid_creative.js does
+ * ───────────────────────────────────────────────────────────────── */
+const simidProtocol = new SimidProtocol();
+
+/* Listen for Player:init — resolve it to complete the handshake */
+simidProtocol.addListener(PlayerMessage.INIT, (data) => {
+  console.log('[SIMID] Player:init received', data);
+  simidProtocol.resolve(data, {});
+});
+
+/* Listen for Player:startCreative — show the overlay */
+simidProtocol.addListener(PlayerMessage.START_CREATIVE, (data) => {
+  console.log('[SIMID] Player:startCreative received');
+  simidProtocol.resolve(data, {});
+  document.getElementById('overlay').style.display = 'flex';
+});
+
+/* Listen for Player:adStopped */
+simidProtocol.addListener(PlayerMessage.AD_STOPPED, (data) => {
+  console.log('[SIMID] Player:adStopped');
+  simidProtocol.resolve(data, {});
+  document.getElementById('overlay').style.display = 'none';
+});
+
+/* Listen for Player:adSkipped */
+simidProtocol.addListener(PlayerMessage.AD_SKIPPED, (data) => {
+  console.log('[SIMID] Player:adSkipped');
+  simidProtocol.resolve(data, {});
+  document.getElementById('overlay').style.display = 'none';
+});
+
+/* CTA button → clickThru */
+document.getElementById('cta').addEventListener('click', () => {
+  simidProtocol.sendMessage(CreativeMessage.CLICK_THRU, {
+    clickThruUrl: 'https://google.com',
+    id: 'cta',
+  }).then(() => {
+    window.open('https://google.com', '_blank');
+  });
+});
+
+/* Close button → requestStop */
+document.getElementById('close_btn').addEventListener('click', () => {
+  document.getElementById('overlay').style.display = 'none';
+  simidProtocol.sendMessage(CreativeMessage.REQUEST_STOP, {});
+});
+
+/*
+ * createSession — called immediately, synchronously.
+ * This is the FIRST thing the creative does, exactly as in the IAB example.
+ * It generates a UUID session ID and posts `createSession` to the player.
+ * The player responds with resolve, then sends Player:init.
+ */
+simidProtocol.createSession();
+console.log('[SIMID] createSession sent');
+</script>
 </body>
 </html>
