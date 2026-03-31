@@ -4,121 +4,137 @@
   <meta charset="UTF-8">
   <title>SIMID</title>
   <style>
-    /* Reset everything */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
     /*
-      Fill the iframe completely.
-      The player sets the iframe to the video player size.
-      We match it exactly using position:absolute + inset:0
-      which is more reliable than 100vh inside a sandboxed iframe.
+      Use BODY itself as the overlay — no wrapper div.
+      Body is the one element guaranteed to have the iframe's dimensions.
+      We make it a flex container and center the card inside it.
     */
-    html, body {
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html {
       width: 100%;
       height: 100%;
-      background: transparent;
-      overflow: hidden;
     }
 
-    #overlay {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      /* Visible by default — no waiting for JS.
-         Once SIMID events confirm ad started, JS keeps it shown.
-         This way even if messages are missed it still shows. */
+    body {
+      width: 100%;
+      height: 100%;
+      min-height: 100px;
+      background: rgba(0, 0, 0, 0.7);
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(0,0,0,0.65);
       font-family: Arial, sans-serif;
+      overflow: hidden;
     }
 
     .card {
       background: #fff;
       border-radius: 14px;
-      padding: 28px 32px;
-      width: 85%;
-      max-width: 400px;
+      padding: 28px 30px;
+      width: 82%;
+      max-width: 380px;
       text-align: center;
+      position: relative;
     }
 
-    .card h2 { font-size: 20px; color: #111; margin-bottom: 8px; }
-    .card p  { font-size: 14px; color: #555; margin-bottom: 20px; }
+    h2 { font-size: 20px; color: #111; margin-bottom: 8px; }
+    p  { font-size: 14px; color: #555; line-height: 1.5; margin-bottom: 20px; }
 
     #cta {
-      background: #e63946;
-      color: #fff;
-      border: none;
-      border-radius: 40px;
-      padding: 12px 28px;
-      font-size: 15px;
-      font-weight: bold;
-      cursor: pointer;
-      display: block;
-      width: 100%;
-      margin-bottom: 10px;
+      display: block; width: 100%;
+      background: #e63946; color: #fff;
+      border: none; border-radius: 40px;
+      padding: 12px; font-size: 15px; font-weight: bold;
+      cursor: pointer; margin-bottom: 8px;
     }
 
-    #skip {
-      background: none;
-      border: none;
-      color: #aaa;
-      font-size: 12px;
-      cursor: pointer;
+    #skip-btn {
+      background: none; border: none;
+      color: #aaa; font-size: 12px; cursor: pointer;
+    }
+
+    #close-btn {
+      position: absolute; top: 8px; right: 10px;
+      background: none; border: none;
+      font-size: 18px; color: #aaa; cursor: pointer;
+      line-height: 1;
     }
   </style>
 </head>
 <body>
-
-  <div class="overlay" id="overlay">
-    <div class="card">
-      <h2>Special Offer</h2>
-      <p>Tap below to learn more about this exclusive deal.</p>
-      <button id="cta">Learn More</button>
-      <button id="skip">Skip</button>
-    </div>
+  <div class="card">
+    <button id="close-btn">✕</button>
+    <h2>Special Offer</h2>
+    <p>Tap below to discover our latest collection.</p>
+    <button id="cta">Learn More</button>
+    <button id="skip-btn">No thanks</button>
   </div>
 
 <script>
 (function() {
-  const overlay = document.getElementById('overlay');
-  let sessionStarted = false;
+  var msgId = 1;
+  var sessionId = null;
 
-  window.addEventListener('message', (event) => {
-    const data = event.data;
-    if (!data) return;
+  function send(type, args, correlationId) {
+    var msg = {
+      sessionId:   sessionId,
+      messageId:   msgId++,
+      type:        'SIMID:Creative:' + type,
+      messageName: 'SIMID:Creative:' + type,
+      timestamp:   Date.now(),
+      version:     '1.1',
+      args:        args || {}
+    };
+    if (correlationId != null) msg.correlationId = correlationId;
+    window.parent.postMessage(msg, '*');
+  }
 
-    // 1. FORCE THE SESSION
-    // Whenever the player talks (like timeupdate), we shout back "START ME"
-    window.parent.postMessage({
-      messageName: 'SIMID:Creative:createSession',
-      messageId: 100, // Dummy ID
-      timestamp: Date.now(),
-      version: "1.0",
-      args: {}
-    }, "*");
+  function hide() {
+    document.body.style.display = 'none';
+  }
 
-    // 2. FORCE THE RESOLVE
-    // If the player sent a message with an ID, we tell it "Resolved" immediately
-    if (data.messageId) {
-      window.parent.postMessage({
-        sessionId: data.sessionId || null,
-        messageId: 200,
-        correlationId: data.messageId,
-        messageName: 'SIMID:Creative:resolve',
-        timestamp: Date.now(),
-        args: {}
-      }, "*");
-    }
-
-    // 3. FORCE THE VISIBILITY
-    // The moment we see "start" OR after 2 seconds of any player activity
-    if (!sessionStarted) {
-       overlay.style.display = 'block';
-       sessionStarted = true;
-       console.log("Overlay forced visible!");
-    }
+  window.addEventListener('message', function(e) {
+    var d = e.data;
+    if (typeof d === 'string') { try { d = JSON.parse(d); } catch(_) { return; } }
+    if (!d || !d.type) return;
+    var t = d.type.toLowerCase();
+    if (t.indexOf('simid') === -1) return;
+    if (d.sessionId) sessionId = d.sessionId;
+    if (d.messageId != null) send('resolve', {}, d.messageId);
+    if (t.indexOf('stop') > -1 || t.indexOf('complete') > -1 || t.indexOf('skip') > -1) hide();
   });
+
+  document.getElementById('cta').onclick = function() {
+    send('clickThru', { clickThruUrl: 'https://google.com', id: 'cta' });
+    window.open('https://google.com', '_blank');
+  };
+
+  document.getElementById('skip-btn').onclick =
+  document.getElementById('close-btn').onclick = function() {
+    hide();
+    send('closeCreative', {});
+  };
+
+  /* createSession tells the player the creative is ready */
+  window.parent.postMessage({
+    sessionId: null, messageId: msgId++,
+    type: 'SIMID:Creative:createSession',
+    messageName: 'SIMID:Creative:createSession',
+    timestamp: Date.now(), version: '1.1', args: {}
+  }, '*');
+
+  console.log('[SIMID] body size on load:', document.body.offsetWidth, 'x', document.body.offsetHeight);
+
+  /* Log body size again after a tick in case IMA sets iframe dims async */
+  setTimeout(function() {
+    console.log('[SIMID] body size after 100ms:', document.body.offsetWidth, 'x', document.body.offsetHeight);
+  }, 100);
+
+  setTimeout(function() {
+    console.log('[SIMID] body size after 1s:', document.body.offsetWidth, 'x', document.body.offsetHeight);
+  }, 1000);
+
 })();
 </script>
 </body>
