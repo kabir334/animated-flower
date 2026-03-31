@@ -23,67 +23,69 @@
         (function() {
             let sessionId = null;
             let msgId = 1;
-
-            // The absolute simplest send function
-            function send(name, msgIdToResolve) {
+        
+            function send(name, resolveId = undefined) {
                 const msg = {
                     sessionId: sessionId,
                     messageId: msgId++,
-                    messageName: "SIMID:Creative:" + name,
+                    messageName: "SIMID:Creative:" + name, // Using standard naming
+                    type: "SIMID:Creative:" + name,        // Using Google-friendly naming
                     timestamp: Date.now(),
+                    version: "1.0",
                     args: {}
                 };
-                if (msgIdToResolve) msg.correlationId = msgIdToResolve;
+                if (resolveId) msg.correlationId = resolveId;
                 window.parent.postMessage(msg, "*");
                 console.log(">> SENT:", name);
             }
-
+        
             window.addEventListener('message', (event) => {
                 let data = event.data;
                 if (typeof data === 'string') {
-                try {
-                        data = JSON.parse(data);
-                    } catch (e) {
-                        console.error("[script] Could not parse JSON string:", e);
-                        return; // Not a valid SIMID message
-                    }
+                    try { data = JSON.parse(data); } catch (e) { return; }
                 }
-            
-                console.log("[script] Received Object:", data);
-            
-                // 2. Normalize the message name (handling both 'type' and 'messageName')
-                const msgName = data.messageName || data.type;
-                if (!msgName) return;
-            
-                // 3. Update Session ID
-                if (data.sessionId) sessionId = data.sessionId;
-            
-                // 4. IAB Response Logic
-                switch (msgName) {
-                    case 'SIMID:Media:play':
-                        send('resolve', data.messageId);
-                        break;
-                    case 'SIMID:Media:start':
-                        send('resolve', data.messageId);
-                        // SHOW THE AD
-                        document.getElementById('ad-layer').style.display = 'flex';
-                        break;
-                    case 'SIMID:Media:adStopped':
-                        send('resolve', data.messageId);
-                        break;
-                    default:
-                        if (data.messageId) send('resolve', data.messageId);
-                        break;
+                if (!data) return;
+        
+                const incomingName = data.messageName || data.type;
+                console.log("<< RECV:", incomingName, data);
+        
+                // 1. CAPTURE THE ID: This stops the loop!
+                if (data.sessionId) {
+                    sessionId = data.sessionId;
+                    console.log("✅ SESSION ESTABLISHED:", sessionId);
+                }
+        
+                // 2. RESPOND TO THE PLAYER
+                if (incomingName.includes('Player:init')) {
+                    send('resolve', data.messageId);
+                } 
+                else if (incomingName.includes('Player:start')) {
+                    send('resolve', data.messageId);
+                    // FINALLY SHOW THE UI
+                    document.getElementById('ad-layer').style.display = 'flex';
+                }
+                else if (data.messageId) {
+                    // Always resolve status updates like 'timeupdate'
+                    send('resolve', data.messageId);
                 }
             });
-
-            // START THE HANDSHAKE
-            window.parent.postMessage({
-                messageId: msgId++,
-                messageName: 'SIMID:Creative:createSession',
-                timestamp: Date.now(),
-                args: {}
-            }, "*");
+        
+            // 3. THE HEARTBEAT: Keep asking for a session until you get one
+            const handshakeInterval = setInterval(() => {
+                if (sessionId) {
+                    clearInterval(handshakeInterval);
+                    return;
+                }
+                console.log("🔄 Requesting createSession...");
+                window.parent.postMessage({
+                    messageId: msgId++,
+                    messageName: 'SIMID:Creative:createSession',
+                    type: 'SIMID:Creative:createSession',
+                    timestamp: Date.now(),
+                    version: "1.0",
+                    args: {}
+                }, "*");
+            }, 1000);
         })();
     </script>
 </body>
