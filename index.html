@@ -33,6 +33,7 @@ function sendToPlayer(name, correlationId) {
         messageId: msgId++,
         messageName: "SIMID:Creative:" + name,
         timestamp: Date.now(),
+        version: "1.0",
         args: {}
     };
     if (correlationId) msg.correlationId = correlationId;
@@ -86,6 +87,7 @@ var handshake = setInterval(function() {
         messageId: msgId++,
         messageName: 'SIMID:Creative:createSession',
         timestamp: Date.now(),
+        version: "1.0",
         args: {}
     }, "*");
 }, 1000);
