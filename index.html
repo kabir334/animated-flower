@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>SIMID Overlay Ad</title>
+    <script src="https://sdk.vudoo.io/v1/shoppable.js"></script>
     <style>
         /* 1. LAYOUT: Body is a transparent "ghost" layer */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -47,28 +48,12 @@
             pointer-events: auto; /* Capture all clicks when modal is open */
         }
 
-        .modal-card {
-            background: #fff;
-            padding: 30px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 350px;
-            text-align: center;
-            position: relative;
-        }
-
-        .option-item {
-            display: block;
+        /* Vudoo Container */
+        #vudoo-app-container {
+            flex-grow: 1;
             width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            background: #f4f4f4;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
+            height: 100%;
         }
-        .option-item:hover { background: #e0e0e0; }
 
         #close-modal {
             margin-top: 15px;
@@ -86,20 +71,20 @@
 
     <div id="modal-overlay">
         <div class="modal-card">
-            <h2 style="margin-bottom: 10px;">Exclusive Styles</h2>
-            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Choose a collection to explore</p>
-            
-            <div class="option-item" onclick="handleItemClick('Originals')">Originals Series</div>
-            <div class="option-item" onclick="handleItemClick('Performance')">Performance Gear</div>
-            
-            <button id="close-modal">Back to Video</button>
+            <div id="vudoo-app-container"></div>
+            <button id="close-modal">CLOSE & RESUME VIDEO</button>
         </div>
     </div>
 
     <script>
-        /**
-         * LOGGING WRAPPER
-         */
+        
+        const VUDOO_CONFIG = {
+            tagId: '17183949788', 
+            productId: 'B01KJNTV9I',
+            region: 'us',
+            containerId: 'vudoo-app-container'
+        };
+        
         function log(msg, obj = "") {
             console.log(`%c[SIMID DEBUG]%c ${msg}`, "color: #00ff00; font-weight: bold", "color: #fff", obj);
         }
@@ -183,6 +168,18 @@
             send('requestPause'); // Player should pause video
             modal.style.display = 'flex';
             entryBtn.style.display = 'none';
+
+            try {
+                Vudoo.createShoppableApp({
+                    tagId: VUDOO_CONFIG.tagId,
+                    productId: VUDOO_CONFIG.productId,
+                    container: document.getElementById(VUDOO_CONFIG.containerId),
+                    region: VUDOO_CONFIG.region
+                });
+                log("Vudoo App Created");
+            } catch (err) {
+                log("Vudoo Error", err);
+            }
         };
 
         // 2. CLOSE MODAL & RESUME
@@ -191,6 +188,8 @@
             send('requestPlay'); // Player should resume video
             modal.style.display = 'none';
             entryBtn.style.display = 'block';
+
+            document.getElementById(VUDOO_CONFIG.containerId).innerHTML = '';
         };
 
         // 3. ITEM CLICK (Click-Thru)
