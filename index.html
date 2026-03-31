@@ -2,214 +2,163 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>SIMID</title>
+  <title>SIMID Test Player</title>
   <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #111; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: Arial, sans-serif; }
 
-    html, body {
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: Arial, sans-serif;
-      overflow: hidden;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 28px 30px;
-      width: 82%;
-      max-width: 380px;
-      text-align: center;
+    #player-wrap {
       position: relative;
+      width: 640px;
+      height: 360px;
+      background: #000;
     }
 
-    h2 { font-size: 20px; color: #111; margin-bottom: 8px; }
-    p  { font-size: 14px; color: #555; line-height: 1.5; margin-bottom: 20px; }
-
-    #cta {
-      display: block; width: 100%;
-      background: #e63946; color: #fff;
-      border: none; border-radius: 40px;
-      padding: 12px; font-size: 15px; font-weight: bold;
-      cursor: pointer; margin-bottom: 8px;
+    #content-video {
+      width: 100%; height: 100%;
+      display: block;
     }
 
-    #skip-btn {
-      background: none; border: none;
-      color: #aaa; font-size: 12px; cursor: pointer;
+    /* Ad container sits on top of the video, same size */
+    #ad-container {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; /* let clicks through to video unless ad is active */
     }
 
-    #close-btn {
-      position: absolute; top: 8px; right: 10px;
-      background: none; border: none;
-      font-size: 18px; color: #aaa; cursor: pointer;
+    #ad-container.active {
+      pointer-events: all;
+    }
+
+    #play-btn {
+      margin-top: 20px;
+      padding: 12px 32px;
+      background: #e63946;
+      color: #fff;
+      border: none;
+      border-radius: 40px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #status {
+      margin-top: 12px;
+      color: #aaa;
+      font-size: 13px;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <button id="close-btn">✕</button>
-    <h2>Special Offer</h2>
-    <p>Tap below to discover our latest collection.</p>
-    <button id="cta">Learn More</button>
-    <button id="skip-btn">No thanks</button>
+
+  <div id="player-wrap">
+    <video id="content-video" playsinline>
+      <source src="https://storage.googleapis.com/interactive-media-ads/media/android.mp4" type="video/mp4">
+    </video>
+    <!-- IMA renders the ad iframe inside this div -->
+    <div id="ad-container"></div>
   </div>
 
-<script>
-(function() {
-  var msgId = 1;
-  var sessionId = null;
-  var playerWidth = 0;
-  var playerHeight = 0;
+  <button id="play-btn">Play Ad</button>
+  <div id="status">Click "Play Ad" to start</div>
 
-  /* ── send any SIMID:Creative message ── */
-  function send(type, args, correlationId) {
-    var msg = {
-      sessionId:   sessionId,
-      messageId:   msgId++,
-      type:        'SIMID:Creative:' + type,
-      messageName: 'SIMID:Creative:' + type,
-      timestamp:   Date.now(),
-      version:     '1.1',
-      args:        args || {}
-    };
-    if (correlationId != null) msg.correlationId = correlationId;
-    console.log('[SIMID >>]', msg.type, JSON.stringify(msg.args));
-    window.parent.postMessage(msg, '*');
-  }
+  <!-- Google IMA HTML5 SDK -->
+  <script src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
 
-  /*
-   * ── requestResize ────────────────────────────────────────────────
-   * This is the key call. The SIMID iframe starts at 0x0 because the
-   * player waits for the creative to declare how much space it needs.
-   * We ask for 100% of the video player area using the dimensions
-   * the player told us about in the environmentData of the init message.
-   * If we haven't received init yet, we use the window's parent
-   * dimensions as a fallback, or a safe default of 640x480.
-   */
-  function requestResize(w, h) {
-    w = w || playerWidth || 640;
-    h = h || playerHeight || 480;
-    console.log('[SIMID] requesting resize to', w, 'x', h);
-    send('requestResize', {
-      width:  w,
-      height: h
+  <script>
+    var video       = document.getElementById('content-video');
+    var adContainer = document.getElementById('ad-container');
+    var playBtn     = document.getElementById('play-btn');
+    var statusEl    = document.getElementById('status');
+
+    var adsLoader, adsManager;
+
+    function setStatus(msg) {
+      statusEl.textContent = msg;
+      console.log('[Player]', msg);
+    }
+
+    /* ── 1. Initialise IMA ── */
+    function initIMA() {
+      var adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, video);
+      adDisplayContainer.initialize();
+
+      adsLoader = new google.ima.AdsLoader(adDisplayContainer);
+      adsLoader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, onAdsManagerLoaded);
+      adsLoader.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError);
+
+      video.addEventListener('ended', function() {
+        adsLoader.contentComplete();
+      });
+
+      /* ── 2. Request the ad ── */
+      var req = new google.ima.AdsRequest();
+
+      /*
+       * REPLACE THIS with your own VAST tag URL.
+       * This is the Google SIMID sample tag — it uses a creative hosted
+       * on googleads.github.io so VSI works with it.
+       * Your Netlify-hosted creative will work fine here because this
+       * page sends postMessage with targetOrigin:'*', not locked to github.io
+       */
+      req.adTagUrl =
+        'https://pubads.g.doubleclick.net/gampad/ads?' +
+        'iu=/21775744923/external/simid_test&' +
+        'description_url=https%3A%2F%2Fdevelopers.google.com&' +
+        'tfcd=0&npa=0&sz=640x480&gdfp_req=1&output=vast&' +
+        'unviewed_position_start=1&env=vp&impl=s&correlator=';
+
+      req.linearAdSlotWidth  = 640;
+      req.linearAdSlotHeight = 360;
+      req.nonLinearAdSlotWidth  = 640;
+      req.nonLinearAdSlotHeight = 360;
+
+      adsLoader.requestAds(req);
+      setStatus('Requesting ad...');
+    }
+
+    /* ── 3. Ads manager loaded ── */
+    function onAdsManagerLoaded(e) {
+      adsManager = e.getAdsManager(video);
+      adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError);
+      adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, onAllAdsCompleted);
+      adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, function() {
+        setStatus('Ad playing...');
+        adContainer.classList.add('active');
+      });
+      adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE, function() {
+        setStatus('Ad complete. Playing content.');
+        adContainer.classList.remove('active');
+        video.play();
+      });
+
+      try {
+        adsManager.init(640, 360, google.ima.ViewMode.NORMAL);
+        adsManager.start();
+        setStatus('Ad started.');
+      } catch(e) {
+        console.error('AdsManager error:', e);
+        video.play();
+      }
+    }
+
+    function onAdError(e) {
+      setStatus('Ad error: ' + e.getError());
+      console.error('Ad error:', e.getError());
+      if (adsManager) adsManager.destroy();
+      video.play();
+    }
+
+    function onAllAdsCompleted() {
+      setStatus('All ads complete.');
+      adContainer.classList.remove('active');
+    }
+
+    /* ── Play button ── */
+    playBtn.addEventListener('click', function() {
+      playBtn.disabled = true;
+      initIMA();
     });
-  }
-
-  /* ── hide overlay ── */
-  function hide() {
-    document.body.style.display = 'none';
-    document.body.style.background = 'transparent';
-  }
-
-  /* ── message handler ── */
-  window.addEventListener('message', function(e) {
-    var d = e.data;
-    if (typeof d === 'string') { try { d = JSON.parse(d); } catch(_) { return; } }
-    if (!d || !d.type) return;
-    var t = d.type.toLowerCase();
-    if (t.indexOf('simid') === -1) return;
-
-    console.log('[SIMID <<]', d.type, 'sessionId:', d.sessionId, 'msgId:', d.messageId);
-
-    if (d.sessionId) sessionId = d.sessionId;
-
-    /* always resolve every inbound message */
-    if (d.messageId != null) send('resolve', {}, d.messageId);
-
-    /* init — player tells us the video player dimensions */
-    if (t.indexOf('init') > -1) {
-      var env = (d.args && d.args.environmentData) || {};
-      playerWidth  = env.playerWidth  || env.width  || 0;
-      playerHeight = env.playerHeight || env.height || 0;
-      console.log('[SIMID] init received, player dims:', playerWidth, 'x', playerHeight);
-      /* Request to fill the full player area */
-      requestResize(playerWidth, playerHeight);
-      return;
-    }
-
-    /* start or play — also request resize here in case init was missed */
-    if (t.indexOf('start') > -1 || t.indexOf('media:play') > -1) {
-      requestResize(playerWidth, playerHeight);
-      return;
-    }
-
-    /* resolve to our resize request — player accepted the new size */
-    if (t.indexOf('resolve') > -1) {
-      console.log('[SIMID] resize accepted by player');
-      console.log('[SIMID] body size now:', document.body.offsetWidth, 'x', document.body.offsetHeight);
-      return;
-    }
-
-    /* end states */
-    if (t.indexOf('stop') > -1 || t.indexOf('complete') > -1 || t.indexOf('skip') > -1) {
-      hide();
-      return;
-    }
-  });
-
-  /* ── buttons ── */
-  document.getElementById('cta').onclick = function() {
-    send('clickThru', { clickThruUrl: 'https://google.com', id: 'cta' });
-    window.open('https://google.com', '_blank');
-  };
-
-  document.getElementById('skip-btn').onclick =
-  document.getElementById('close-btn').onclick = function() {
-    hide();
-    send('closeCreative', {});
-  };
-
-  /*
-   * ── createSession ─────────────────────────────────────────────────
-   * Sent immediately and synchronously so the player knows the
-   * creative's listener is ready and will re-send init.
-   */
-  window.parent.postMessage({
-    sessionId: null, messageId: msgId++,
-    type:        'SIMID:Creative:createSession',
-    messageName: 'SIMID:Creative:createSession',
-    timestamp: Date.now(), version: '1.1', args: {}
-  }, '*');
-
-  /*
-   * ── Fallback resize loop ───────────────────────────────────────────
-   * If the player never sends init (as seen with Google IMA which goes
-   * straight to Media:play), we never get playerWidth/playerHeight.
-   * So we also try requestResize repeatedly with fallback dimensions
-   * until the body has actual size.
-   */
-  var resizeAttempts = 0;
-  var resizeTimer = setInterval(function() {
-    resizeAttempts++;
-    var bw = document.body.offsetWidth;
-    var bh = document.body.offsetHeight;
-    console.log('[SIMID] resize attempt', resizeAttempts, '— body size:', bw, 'x', bh);
-
-    if (bw > 0 && bh > 0) {
-      console.log('[SIMID] body has size, stopping resize loop');
-      clearInterval(resizeTimer);
-      return;
-    }
-
-    /* Try with player dims if we have them, else use common video sizes */
-    var w = playerWidth  || window.screen.width  || 640;
-    var h = playerHeight || window.screen.height || 480;
-    requestResize(w, h);
-
-    if (resizeAttempts >= 10) {
-      console.log('[SIMID] gave up after 10 resize attempts');
-      clearInterval(resizeTimer);
-    }
-  }, 500);
-
-  console.log('[SIMID] ready, createSession sent');
-})();
-</script>
+  </script>
 </body>
 </html>
