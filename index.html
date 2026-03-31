@@ -21,71 +21,74 @@
 
     <script>
         (function() {
-            let sessionId = null;
-            let msgId = 1;
-        
-            function send(name, resolveId = undefined) {
-                const msg = {
-                    sessionId: sessionId,
-                    messageId: msgId++,
-                    messageName: "SIMID:Creative:" + name, // Using standard naming
-                    type: "SIMID:Creative:" + name,        // Using Google-friendly naming
-                    timestamp: Date.now(),
-                    version: "1.0",
-                    args: {}
-                };
-                if (resolveId) msg.correlationId = resolveId;
-                window.parent.postMessage(msg, "*");
-                console.log(">> SENT:", name);
-            }
-        
-            window.addEventListener('message', (event) => {
-                let data = event.data;
-                if (typeof data === 'string') {
-                    try { data = JSON.parse(data); } catch (e) { return; }
-                }
-                if (!data) return;
-        
-                const incomingName = data.messageName || data.type;
-                console.log("<< RECV:", incomingName, data);
-        
-                // 1. CAPTURE THE ID: This stops the loop!
-                if (data.sessionId) {
-                    sessionId = data.sessionId;
-                    console.log("✅ SESSION ESTABLISHED:", sessionId);
-                }
-        
-                // 2. RESPOND TO THE PLAYER
-                if (incomingName.includes('Player:init')) {
-                    send('resolve', data.messageId);
-                } 
-                else if (incomingName.includes('Player:start')) {
-                    send('resolve', data.messageId);
-                    // FINALLY SHOW THE UI
-                    document.getElementById('ad-layer').style.display = 'flex';
-                }
-                else if (data.messageId) {
-                    // Always resolve status updates like 'timeupdate'
-                    send('resolve', data.messageId);
-                }
-            });
-        
-            // 3. THE HEARTBEAT: Keep asking for a session until you get one
-            const handshakeInterval = setInterval(() => {
-                if (sessionId) {
-                    clearInterval(handshakeInterval);
-                    return;
-                }
-                console.log("🔄 Requesting createSession...");
-                window.parent.postMessage({
-                    messageId: msgId++,
-                    messageName: 'SIMID:Creative:createSession',
-                    type: 'SIMID:Creative:createSession',
-                    timestamp: Date.now(),
-                    version: "1.0",
-                    args: {}
-                }, "*");
-            }, 1000);
+            console.log("🚩 CHECKPOINT 1: Script started");
+
+var sessionId = null;
+var msgId = 1;
+
+// 1. Unified Send Function
+function sendToPlayer(name, correlationId) {
+    var msg = {
+        sessionId: sessionId,
+        messageId: msgId++,
+        messageName: "SIMID:Creative:" + name,
+        timestamp: Date.now(),
+        args: {}
+    };
+    if (correlationId) msg.correlationId = correlationId;
+    
+    console.log(">> SENDING:", name);
+    window.parent.postMessage(msg, "*");
+}
+
+// 2. Robust Listener
+window.addEventListener('message', function(event) {
+    var data = event.data;
+    
+    // Handle String vs Object
+    if (typeof data === 'string') {
+        try { data = JSON.parse(data); } catch(e) { return; }
+    }
+    
+    if (!data) return;
+    console.log("<< RECEIVED:", (data.messageName || data.type), data);
+
+    // Capture Session ID
+    if (data.sessionId) {
+        sessionId = data.sessionId;
+    }
+
+    // Resolve EVERYTHING the player sends to keep it happy
+    if (data.messageId) {
+        sendToPlayer("resolve", data.messageId);
+    }
+
+    // Show UI on Start
+    var name = (data.messageName || data.type || "");
+    if (name.indexOf("Player:start") !== -1) {
+        var el = document.getElementById('ad-layer');
+        if (el) el.style.display = 'flex';
+    }
+});
+
+console.log("🚩 CHECKPOINT 2: Listener attached");
+
+// 3. The Handshake Loop
+var handshake = setInterval(function() {
+    if (sessionId) {
+        console.log("✅ Handshake stopped. Session active.");
+        clearInterval(handshake);
+        return;
+    }
+    
+    console.log("🔄 CHECKPOINT 3: Requesting createSession...");
+    window.parent.postMessage({
+        messageId: msgId++,
+        messageName: 'SIMID:Creative:createSession',
+        timestamp: Date.now(),
+        args: {}
+    }, "*");
+}, 1000);
         })();
     </script>
 </body>
