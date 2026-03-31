@@ -97,19 +97,30 @@ entryBtn.onclick = () => {
     entryBtn.style.display = 'none';
 
     try {
-        // 1. Create the app instance
+        const container = document.getElementById(VUDOO_CONFIG.containerId);
+        container.innerHTML = ''; // Clear any previous attempts
+
+        log("Initializing Vudoo App...");
+        
+        // Use the instance-based approach to ensure the iframe is caught
         const app = createShoppableApp({
             tagId: VUDOO_CONFIG.tagId,
             container: container,
             region: VUDOO_CONFIG.region
         });
 
-        // 2. The SDK handles iframe injection into the container automatically,
-        // but we ensure the product page is triggered.
-        log("Vudoo Instance Created, opening product...");
-        
-        // productId comes from our config
-        openShoppableProductPage(app, VUDOO_CONFIG.productId);
+        // Vudoo returns an object that contains the iframe reference.
+        // If the container is still empty, we manually append it.
+        if (app && app.iframe) {
+            container.appendChild(app.iframe);
+            log("Manually appended Vudoo iframe.");
+        }
+
+        // Delay the product page open slightly to let the app initialize
+        setTimeout(() => {
+            log("Opening Product Page: " + VUDOO_CONFIG.productId);
+            openShoppableProductPage(app, VUDOO_CONFIG.productId);
+        }, 500);
 
     } catch (err) {
         log("Vudoo SDK Error", err);
