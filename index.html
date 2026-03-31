@@ -70,7 +70,7 @@
 </head>
 <body>
 
-  <div id="overlay">
+  <div class="overlay" id="overlay">
     <div class="card">
       <h2>Special Offer</h2>
       <p>Tap below to learn more about this exclusive deal.</p>
@@ -81,57 +81,44 @@
 
 <script>
 (function() {
-  var msgId = 1;
-  var sessionId = null;
+  const overlay = document.getElementById('overlay');
+  let sessionStarted = false;
 
-  function send(type, args, correlationId) {
-    var msg = {
-      sessionId:   sessionId,
-      messageId:   msgId++,
-      type:        'SIMID:Creative:' + type,
-      messageName: 'SIMID:Creative:' + type,
-      timestamp:   Date.now(),
-      version:     '1.1',
-      args:        args || {}
-    };
-    if (correlationId != null) msg.correlationId = correlationId;
-    window.parent.postMessage(msg, '*');
-    console.log('[SIMID >>]', msg.type);
-  }
+  window.addEventListener('message', (event) => {
+    const data = event.data;
+    if (!data) return;
 
-  window.addEventListener('message', function(e) {
-    var d = e.data;
-    if (typeof d === 'string') { try { d = JSON.parse(d); } catch(_) { return; } }
-    if (!d || !d.type) return;
+    // 1. FORCE THE SESSION
+    // Whenever the player talks (like timeupdate), we shout back "START ME"
+    window.parent.postMessage({
+      messageName: 'SIMID:Creative:createSession',
+      messageId: 100, // Dummy ID
+      timestamp: Date.now(),
+      version: "1.0",
+      args: {}
+    }, "*");
 
-    var t = d.type.toLowerCase();
-    console.log('[SIMID <<]', d.type);
+    // 2. FORCE THE RESOLVE
+    // If the player sent a message with an ID, we tell it "Resolved" immediately
+    if (data.messageId) {
+      window.parent.postMessage({
+        sessionId: data.sessionId || null,
+        messageId: 200,
+        correlationId: data.messageId,
+        messageName: 'SIMID:Creative:resolve',
+        timestamp: Date.now(),
+        args: {}
+      }, "*");
+    }
 
-    if (d.sessionId) sessionId = d.sessionId;
-
-    /* Always resolve every message */
-    if (d.messageId != null) send('resolve', {}, d.messageId);
-
-    /* Hide on end */
-    if (t.indexOf('stop') > -1 || t.indexOf('complete') > -1 || t.indexOf('skip') > -1) {
-      document.getElementById('overlay').style.display = 'none';
+    // 3. FORCE THE VISIBILITY
+    // The moment we see "start" OR after 2 seconds of any player activity
+    if (!sessionStarted) {
+       overlay.style.display = 'block';
+       sessionStarted = true;
+       console.log("Overlay forced visible!");
     }
   });
-
-  document.getElementById('cta').onclick = function() {
-    send('clickThru', { clickThruUrl: 'https://google.com', id: 'cta' });
-    window.open('https://google.com', '_blank');
-  };
-
-  document.getElementById('skip').onclick = function() {
-    document.getElementById('overlay').style.display = 'none';
-    send('closeCreative', {});
-  };
-
-  /* Tell player we exist */
-  send('createSession', {});
-
-  console.log('[SIMID] ready');
 })();
 </script>
 </body>
