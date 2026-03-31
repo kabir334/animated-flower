@@ -39,15 +39,26 @@
             }
 
             window.addEventListener('message', (event) => {
-                const data = event.data;
-                console.log("[script] Received: ", data);
-                if (!data || !data.type) return;
-                console.log("<< RECV:", data.type);
-
+                if (typeof data === 'string') {
+                try {
+                        data = JSON.parse(data);
+                    } catch (e) {
+                        console.error("[script] Could not parse JSON string:", e);
+                        return; // Not a valid SIMID message
+                    }
+                }
+            
+                console.log("[script] Received Object:", data);
+            
+                // 2. Normalize the message name (handling both 'type' and 'messageName')
+                const msgName = data.messageName || data.type;
+                if (!msgName) return;
+            
+                // 3. Update Session ID
                 if (data.sessionId) sessionId = data.sessionId;
-
-                // THE CRITICAL "IAB" SWITCH
-                switch (data.type) {
+            
+                // 4. IAB Response Logic
+                switch (msgName) {
                     case 'SIMID:Media:play':
                         send('resolve', data.messageId);
                         break;
