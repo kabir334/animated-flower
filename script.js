@@ -88,30 +88,32 @@ window.addEventListener('message', (e) => {
 const entryBtn = document.getElementById('shop-btn-entry');
 const modal = document.getElementById('modal-overlay');
 const closeBtn = document.getElementById('close-modal');
+const container = document.getElementById(VUDOO_CONFIG.containerId);
 
-// 1. OPEN MODAL & PAUSE
 entryBtn.onclick = () => {
-  log("Action: Requesting Pause & Opening Modal");
-  send('requestPause'); // Player should pause video
-  modal.style.display = 'flex';
-  entryBtn.style.display = 'none';
+    log("Action: Pause & Load Vudoo App");
+    send('requestPause'); 
+    modal.style.display = 'flex';
+    entryBtn.style.display = 'none';
 
-  try {
-      const app = createShoppableApp({
-          tagId: VUDOO_CONFIG.tagId,
-          productId: VUDOO_CONFIG.productId,
-          container: document.getElementById(VUDOO_CONFIG.containerId),
-          region: VUDOO_CONFIG.region
-      });
-      const { iframe } = app;
-      const $shoppableAppContainer = obj.find("#vudoo-app-container");
+    try {
+        // 1. Create the app instance
+        const app = createShoppableApp({
+            tagId: VUDOO_CONFIG.tagId,
+            container: container,
+            region: VUDOO_CONFIG.region
+        });
 
-      // placeShoppableAppContainer(iframe, $shoppableAppContainer);
-      openShoppableProductPage(app, productId);
-      log("Vudoo App Created");
-  } catch (err) {
-      log("Vudoo Error", err);
-  }
+        // 2. The SDK handles iframe injection into the container automatically,
+        // but we ensure the product page is triggered.
+        log("Vudoo Instance Created, opening product...");
+        
+        // productId comes from our config
+        openShoppableProductPage(app, VUDOO_CONFIG.productId);
+
+    } catch (err) {
+        log("Vudoo SDK Error", err);
+    }
 };
 
 // 2. CLOSE MODAL & RESUME
