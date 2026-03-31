@@ -1,356 +1,70 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>SIMID Creative</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
-      width: 100%; height: 100%;
-      background: transparent;
-      overflow: hidden;
-      font-family: Arial, sans-serif;
-    }
-    #overlay {
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.65);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 28px 32px;
-      width: 85%; max-width: 400px;
-      text-align: center;
-      position: relative;
-    }
-    h2 { font-size: 22px; color: #111; margin-bottom: 10px; }
-    p  { font-size: 14px; color: #555; line-height: 1.5; margin-bottom: 22px; }
-    #cta {
-      display: block; width: 100%;
-      background: #e63946; color: #fff;
-      border: none; border-radius: 40px;
-      padding: 13px; font-size: 15px; font-weight: bold;
-      cursor: pointer; margin-bottom: 10px;
-    }
-    #close_btn {
-      position: absolute; top: 8px; right: 10px;
-      background: none; border: none;
-      font-size: 18px; color: #999; cursor: pointer;
-    }
-  </style>
+    <title>WORKING SIMID</title>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; overflow: hidden; }
+        #ad-layer {
+            display: none; /* Hidden until Player:start */
+            width: 100%; height: 100%;
+            position: absolute; top: 0; left: 0;
+            background: rgba(255, 0, 0, 0.5); /* Red tint so you SEE it */
+            color: white; flex-direction: column; justify-content: center; align-items: center;
+        }
+    </style>
 </head>
 <body>
+    <div id="ad-layer">
+        <h1>SIMID IS WORKING!</h1>
+        <button id="cta" style="padding:20px;">CLICK ME</button>
+    </div>
 
-<div id="overlay">
-  <div class="card">
-    <button id="close_btn">&#x2715;</button>
-    <h2>Special Offer</h2>
-    <p>Tap below to explore our latest collection.</p>
-    <button id="cta">Shop Now</button>
-  </div>
-</div>
+    <script>
+        (function() {
+            let sessionId = btoa(Math.random()).substring(0, 16); // Simple unique ID
+    let msgId = 1;
 
-<script>
-/**
- * SimidProtocol — exact copy from:
- * https://github.com/InteractiveAdvertisingBureau/SIMID/blob/master/examples/simid_protocol.js
- */
-const ProtocolMessage = {
-  CREATE_SESSION: 'createSession',
-  RESOLVE: 'resolve',
-  REJECT: 'reject',
-};
-
-const MediaMessage = {
-  DURATION_CHANGE: 'Media:durationchange',
-  ENDED:           'Media:ended',
-  ERROR:           'Media:error',
-  PAUSE:           'Media:pause',
-  PLAY:            'Media:play',
-  PLAYING:         'Media:playing',
-  SEEKED:          'Media:seeked',
-  SEEKING:         'Media:seeking',
-  TIME_UPDATE:     'Media:timeupdate',
-  VOLUME_CHANGE:   'Media:volumechange',
-};
-
-const PlayerMessage = {
-  RESIZE:          'Player:resize',
-  INIT:            'Player:init',
-  LOG:             'Player:log',
-  START_CREATIVE:  'Player:startCreative',
-  AD_SKIPPED:      'Player:adSkipped',
-  AD_STOPPED:      'Player:adStopped',
-  FATAL_ERROR:     'Player:fatalError',
-};
-
-const CreativeMessage = {
-  CLICK_THRU:               'Creative:clickThru',
-  FATAL_ERROR:              'Creative:fatalError',
-  GET_MEDIA_STATE:          'Creative:getMediaState',
-  LOG:                      'Creative:log',
-  REQUEST_FULL_SCREEN:      'Creative:requestFullScreen',
-  REQUEST_EXIT_FULL_SCREEN: 'Creative:requestExitFullScreen',
-  REQUEST_SKIP:             'Creative:requestSkip',
-  REQUEST_STOP:             'Creative:requestStop',
-  REQUEST_PAUSE:            'Creative:requestPause',
-  REQUEST_PLAY:             'Creative:requestPlay',
-  REQUEST_RESIZE:           'Creative:requestResize',
-  REQUEST_VOLUME:           'Creative:requestVolume',
-  REQUEST_TRACKING:         'Creative:reportTracking',
-  REQUEST_CHANGE_AD_DURATION: 'Creative:requestChangeAdDuration',
-};
-
-const EventsThatRequireResponse = [
-  CreativeMessage.GET_MEDIA_STATE,
-  CreativeMessage.CLICK_THRU,
-  CreativeMessage.REQUEST_SKIP,
-  CreativeMessage.REQUEST_STOP,
-  CreativeMessage.REQUEST_PAUSE,
-  CreativeMessage.REQUEST_PLAY,
-  CreativeMessage.REQUEST_FULL_SCREEN,
-  CreativeMessage.REQUEST_EXIT_FULL_SCREEN,
-  CreativeMessage.REQUEST_VOLUME,
-  CreativeMessage.REQUEST_RESIZE,
-  CreativeMessage.REQUEST_CHANGE_AD_DURATION,
-  PlayerMessage.INIT,
-  PlayerMessage.START_CREATIVE,
-  PlayerMessage.AD_SKIPPED,
-  PlayerMessage.AD_STOPPED,
-  PlayerMessage.FATAL_ERROR,
-  ProtocolMessage.CREATE_SESSION,
-];
-
-class SimidProtocol {
-  constructor() {
-    this.listeners_ = {};
-    this.sessionId_ = '';
-    this.nextMessageId_ = 1;
-    this.target_ = window.parent;
-    this.resolutionListeners_ = {};
-    window.addEventListener('message', this.receiveMessage.bind(this), false);
-  }
-
-  reset() {
-    this.listeners_ = {};
-    this.sessionId_ = '';
-    this.nextMessageId_ = 1;
-    this.resolutionListeners_ = {};
-  }
-
-  sendMessage(messageType, messageArgs) {
-    const messageId = this.nextMessageId_++;
-    const nameSpacedMessage =
-      messageType === ProtocolMessage.CREATE_SESSION
-        ? messageType
-        : 'SIMID:' + messageType;
-
-    const message = {
-      sessionId:  this.sessionId_,
-      messageId:  messageId,
-      type:       nameSpacedMessage,
-      timestamp:  Date.now(),
-      args:       messageArgs,
-    };
-
-    if (EventsThatRequireResponse.includes(messageType)) {
-      return new Promise((resolve, reject) => {
-        this.addResolveRejectListener_(messageId, resolve, reject);
-        this.target_.postMessage(JSON.stringify(message), '*');
-      });
+    // 1. The Core Sending Logic (Must be Stringified)
+    function send(type, args = {}, corrId = null) {
+        const msg = {
+            sessionId: sessionId,
+            messageId: msgId++,
+            type: type,
+            timestamp: Date.now(),
+            args: corrId ? { messageId: corrId, value: args } : args
+        };
+        window.parent.postMessage(JSON.stringify(msg), "*");
     }
 
-    return new Promise((resolve) => {
-      this.target_.postMessage(JSON.stringify(message), '*');
-      resolve();
-    });
-  }
+    // 2. The Handshake Logic
+    window.addEventListener('message', (e) => {
+        let data;
+        try { data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; } catch (err) { return; }
+        if (!data || !data.type) return;
 
-  addListener(messageType, callback) {
-    if (!this.listeners_[messageType]) {
-      this.listeners_[messageType] = [callback];
-    } else {
-      this.listeners_[messageType].push(callback);
-    }
-  }
+        const type = data.type;
 
-  addResolveRejectListener_(messageId, resolve, reject) {
-    const listener = (data) => {
-      const type = data['type'];
-      const args = data['args']['value'];
-      if (type === 'resolve') resolve(args);
-      else if (type === 'reject') reject(args);
-    };
-    this.resolutionListeners_[messageId] = listener.bind(this);
-  }
-
-  receiveMessage(event) {
-    if (!event || !event.data) return;
-
-    let data;
-    try {
-      data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-    } catch (e) { return; }
-    if (!data) return;
-
-    const sessionId = data['sessionId'];
-    const type = data['type'];
-
-    const isCreatingSession =
-      this.sessionId_ === '' && type === ProtocolMessage.CREATE_SESSION;
-    const isSessionIdMatch = this.sessionId_ === sessionId;
-    const validSessionId = isCreatingSession || isSessionIdMatch;
-
-    if (!validSessionId || type == null) return;
-
-    if (Object.values(ProtocolMessage).includes(type)) {
-      this.handleProtocolMessage_(data);
-    } else if (type.startsWith('SIMID:')) {
-      const specificType = type.substr(6);
-      const listeners = this.listeners_[specificType];
-      if (listeners) listeners.forEach((l) => l(data));
-    }
-  }
-
-  handleProtocolMessage_(data) {
-    const type = data['type'];
-    switch (type) {
-      case ProtocolMessage.CREATE_SESSION:
-        this.sessionId_ = data['sessionId'];
-        this.resolve(data);
-        const listeners = this.listeners_[type];
-        if (listeners) listeners.forEach((l) => l(data));
-        break;
-      case ProtocolMessage.RESOLVE:
-      case ProtocolMessage.REJECT: {
-        const args = data['args'];
-        const correlatingId = args['messageId'];
-        const fn = this.resolutionListeners_[correlatingId];
-        if (fn) {
-          fn(data);
-          delete this.resolutionListeners_[correlatingId];
+        // If Player sends INIT, we RESOLVE it
+        if (type === 'SIMID:Player:init') {
+            send('resolve', {}, data.messageId);
+        } 
+        // If Player sends START, we RESOLVE and SHOW
+        else if (type === 'SIMID:Player:startCreative') {
+            send('resolve', {}, data.messageId);
+            document.getElementById('overlay').style.display = 'flex';
         }
-        break;
-      }
-    }
-  }
-
-  resolve(incomingMessage, outgoingArgs) {
-    const messageId = this.nextMessageId_++;
-    const message = {
-      sessionId:  this.sessionId_,
-      messageId:  messageId,
-      type:       ProtocolMessage.RESOLVE,
-      timestamp:  Date.now(),
-      args:       { messageId: incomingMessage['messageId'], value: outgoingArgs },
-    };
-    this.target_.postMessage(JSON.stringify(message), '*');
-  }
-
-  reject(incomingMessage, outgoingArgs) {
-    const messageId = this.nextMessageId_++;
-    const message = {
-      sessionId:  this.sessionId_,
-      messageId:  messageId,
-      type:       ProtocolMessage.REJECT,
-      timestamp:  Date.now(),
-      args:       { messageId: incomingMessage['messageId'], value: outgoingArgs },
-    };
-    this.target_.postMessage(JSON.stringify(message), '*');
-  }
-
-  createSession() {
-    this.generateSessionId_();
-    this.sendMessage(ProtocolMessage.CREATE_SESSION).then(
-      () => console.log('[SIMID] session created.'),
-      () => console.log('[SIMID] session creation rejected.')
-    );
-  }
-
-  generateSessionId_() {
-    const random16Uint8s = new Uint8Array(16);
-    window.crypto.getRandomValues(random16Uint8s);
-    const random32Uint4s = Array.from(Array(32).keys()).map(index => {
-      const isEven = index % 2 === 0;
-      const randomUint8 = random16Uint8s[Math.floor(index / 2)];
-      return isEven ? (randomUint8 >> 4) : (randomUint8 & 15);
     });
-    random32Uint4s[12] = 4;
-    random32Uint4s[16] = 0b1000 | (random32Uint4s[16] & 0b0011);
-    const hexDigits = random32Uint4s.map(v => v.toString(16));
-    this.sessionId_ = [
-      hexDigits.slice(0, 8).join(''),
-      hexDigits.slice(8, 12).join(''),
-      hexDigits.slice(12, 16).join(''),
-      hexDigits.slice(16, 20).join(''),
-      hexDigits.slice(20).join(''),
-    ].join('-');
-  }
 
-  setMessageTarget(target) {
-    this.target_ = target;
-  }
-}
-
-/* ─────────────────────────────────────────────────────────────────
- * Creative logic — uses SimidProtocol exactly as base_simid_creative.js does
- * ───────────────────────────────────────────────────────────────── */
-const simidProtocol = new SimidProtocol();
-
-/* Listen for Player:init — resolve it to complete the handshake */
-simidProtocol.addListener(PlayerMessage.INIT, (data) => {
-  console.log('[SIMID] Player:init received', data);
-  simidProtocol.resolve(data, {});
-});
-
-/* Listen for Player:startCreative — show the overlay */
-simidProtocol.addListener(PlayerMessage.START_CREATIVE, (data) => {
-  console.log('[SIMID] Player:startCreative received');
-  simidProtocol.resolve(data, {});
-  document.getElementById('overlay').style.display = 'flex';
-});
-
-/* Listen for Player:adStopped */
-simidProtocol.addListener(PlayerMessage.AD_STOPPED, (data) => {
-  console.log('[SIMID] Player:adStopped');
-  simidProtocol.resolve(data, {});
-  document.getElementById('overlay').style.display = 'none';
-});
-
-/* Listen for Player:adSkipped */
-simidProtocol.addListener(PlayerMessage.AD_SKIPPED, (data) => {
-  console.log('[SIMID] Player:adSkipped');
-  simidProtocol.resolve(data, {});
-  document.getElementById('overlay').style.display = 'none';
-});
-
-/* CTA button → clickThru */
-document.getElementById('cta').addEventListener('click', () => {
-  simidProtocol.sendMessage(CreativeMessage.CLICK_THRU, {
-    clickThruUrl: 'https://google.com',
-    id: 'cta',
-  }).then(() => {
-    window.open('https://google.com', '_blank');
-  });
-});
-
-/* Close button → requestStop */
-document.getElementById('close_btn').addEventListener('click', () => {
-  document.getElementById('overlay').style.display = 'none';
-  simidProtocol.sendMessage(CreativeMessage.REQUEST_STOP, {});
-});
-
-/*
- * createSession — called immediately, synchronously.
- * This is the FIRST thing the creative does, exactly as in the IAB example.
- * It generates a UUID session ID and posts `createSession` to the player.
- * The player responds with resolve, then sends Player:init.
- */
-simidProtocol.createSession();
-console.log('[SIMID] createSession sent');
-</script>
+    // 3. The "First Move" (Create Session)
+    // Sending the message as 'createSession' (no prefix) is the IAB standard
+    window.parent.postMessage(JSON.stringify({
+        sessionId: sessionId,
+        messageId: msgId++,
+        type: 'createSession',
+        timestamp: Date.now(),
+        args: {}
+    }), "*");
+        })();
+    </script>
 </body>
 </html>
