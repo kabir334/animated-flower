@@ -108,46 +108,69 @@
         let msgId = 1;
 
         function send(type, args = {}, corrId = null) {
-            const isProtocol = type === 'createSession' || type === 'resolve' || type === 'reject';
+            const isProtocol = type === 'resolve' || type === 'reject' || type === 'createSession';
             const name = isProtocol ? type : 'SIMID:Creative:' + type;
-
+        
             const msg = {
                 sessionId: sessionId,
                 messageId: msgId++,
                 type: name,
                 timestamp: Date.now(),
                 version: "1.0",
-                args: corrId ? { messageId: corrId, value: args } : args
+                args: args
             };
-
+        
+            // For resolves, the player NEEDS the original messageId in the args
+            if (corrId) {
+                msg.args = { 
+                    messageId: corrId, // This points back to the Player's message
+                    value: args 
+                };
+            }
+        
             log(`>> SENDING: ${name}`, msg);
             window.parent.postMessage(JSON.stringify(msg), "*");
         }
-
         window.addEventListener('message', (e) => {
             let data;
             try { 
                 data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; 
             } catch (err) { return; }
             if (!data) return;
-
+        
+            // Use a unified name check for both 'type' and 'messageName'
             const type = data.type || data.messageName;
             log(`<< RECEIVED: ${type}`, data);
-
+        
+            /**
+             * 1. THE CRITICAL FIX: Player:init
+             * The player hangs here until you resolve this.
+             */
             if (type === 'SIMID:Player:init') {
+                log("Handshake: Resolving Player:init (Video will start now)");
                 send('resolve', {}, data.messageId);
             } 
+            
+            /**
+             * 2. SHOW UI: Player:startCreative
+             * The player sends this once the video actually begins.
+             */
             else if (type === 'SIMID:Player:startCreative') {
+                log("Handshake: Resolving Player:startCreative");
                 send('resolve', {}, data.messageId);
-                // Reveal the button
+                
+                // Reveal the button only after the video is officially running
                 document.getElementById('shop-btn-entry').style.display = 'block';
-                log("UI Action: Showing Entry Button");
             }
-            else if (type === 'resolve') {
-                log(`Check: Message ${data.args.messageId} was resolved by Player.`);
+        
+            /**
+             * 3. KEEP-ALIVE: Resolve other player messages
+             * Some players require a resolve for 'resize' or 'log' to keep the ad alive.
+             */
+            else if (data.messageId && type.startsWith('SIMID:Player:')) {
+                send('resolve', {}, data.messageId);
             }
         });
-
         // ──────────────── UI LOGIC ────────────────
 
         const entryBtn = document.getElementById('shop-btn-entry');
