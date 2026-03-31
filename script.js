@@ -1,54 +1,129 @@
-(function() {
-  let sessionId = null;
-  let messageCounter = 1;
 
-  // 1. Logic to talk to the Player
-  function send(type, args = {}, correlationId = undefined) {
-    const msg = {
-      sessionId: sessionId,
-      messageId: messageCounter++,
-      messageName: type,
-      timestamp: Date.now(),
-      args: args
-    };
-    if (correlationId !== undefined) msg.correlationId = correlationId;
-    window.parent.postMessage(msg, "*");
-    console.log(">> TO PLAYER:", type);
-  }
+        const VUDOO_CONFIG = {
+            tagId: '17183949788', 
+            productId: 'B01KJNTV9I',
+            region: 'us',
+            containerId: 'vudoo-app-container'
+        };
+        
+        function log(msg, obj = "") {
+            console.log(`%c[SIMID DEBUG]%c ${msg}`, "color: #00ff00; font-weight: bold", "color: #fff", obj);
+        }
 
-  // 2. Logic to listen to the Player
-  window.addEventListener('message', (event) => {
-    const data = event.data;
-    if (!data || !data.type) return;
+        let sessionId = btoa(Math.random()).substring(0, 16);
+        let msgId = 1;
 
-    console.log("<< FROM PLAYER:", data.type);
+        function send(type, args = {}, corrId = null) {
+            const isProtocol = type === 'resolve' || type === 'reject' || type === 'createSession';
+            const name = isProtocol ? type : 'SIMID:Creative:' + type;
+        
+            const msg = {
+                sessionId: sessionId,
+                messageId: msgId++,
+                type: name,
+                timestamp: Date.now(),
+                version: "1.0",
+                args: args
+            };
+        
+            // For resolves, the player NEEDS the original messageId in the args
+            if (corrId) {
+                msg.args = { 
+                    messageId: corrId, // This points back to the Player's message
+                    value: args 
+                };
+            }
+        
+            log(`>> SENDING: ${name}`, msg);
+            window.parent.postMessage(JSON.stringify(msg), "*");
+        }
+        window.addEventListener('message', (e) => {
+            let data;
+            try { 
+                data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; 
+            } catch (err) { return; }
+            if (!data) return;
+        
+            // Use a unified name check for both 'type' and 'messageName'
+            const type = data.type || data.messageName;
+            log(`<< RECEIVED: ${type}`, data);
+        
+            /**
+             * 1. THE CRITICAL FIX: Player:init
+             * The player hangs here until you resolve this.
+             */
+            if (type === 'SIMID:Player:init') {
+                log("Handshake: Resolving Player:init (Video will start now)");
+                send('resolve', {}, data.messageId);
+            } 
+            
+            /**
+             * 2. SHOW UI: Player:startCreative
+             * The player sends this once the video actually begins.
+             */
+            else if (type === 'SIMID:Player:startCreative') {
+                log("Handshake: Resolving Player:startCreative");
+                send('resolve', {}, data.messageId);
+                
+                // Reveal the button only after the video is officially running
+                document.getElementById('shop-btn-entry').style.display = 'block';
+            }
+        
+            /**
+             * 3. KEEP-ALIVE: Resolve other player messages
+             * Some players require a resolve for 'resize' or 'log' to keep the ad alive.
+             */
+            else if (data.messageId && type.startsWith('SIMID:Player:')) {
+                send('resolve', {}, data.messageId);
+            }
+        });
+        // ──────────────── UI LOGIC ────────────────
 
-    if (data.sessionId) sessionId = data.sessionId;
+        const entryBtn = document.getElementById('shop-btn-entry');
+        const modal = document.getElementById('modal-overlay');
+        const closeBtn = document.getElementById('close-modal');
 
-    switch (data.type) {
-      case 'SIMID:Player:init':
-        // The IAB protocol MUST resolve init to continue
-        send('SIMID:Creative:resolve', {}, data.messageId);
-        break;
+        // 1. OPEN MODAL & PAUSE
+        entryBtn.onclick = () => {
+            log("Action: Requesting Pause & Opening Modal");
+            send('requestPause'); // Player should pause video
+            modal.style.display = 'flex';
+            entryBtn.style.display = 'none';
 
-      case 'SIMID:Player:start':
-        // The IAB protocol MUST resolve start to show the ad
-        send('SIMID:Creative:resolve', {}, data.messageId);
-        document.getElementById('ad-layer').style.display = 'flex';
-        break;
+            try {
+                Vudoo.createShoppableApp({
+                    tagId: VUDOO_CONFIG.tagId,
+                    productId: VUDOO_CONFIG.productId,
+                    container: document.getElementById(VUDOO_CONFIG.containerId),
+                    region: VUDOO_CONFIG.region
+                });
+                log("Vudoo App Created");
+            } catch (err) {
+                log("Vudoo Error", err);
+            }
+        };
 
-      default:
-        if (data.messageId) send('SIMID:Creative:resolve', {}, data.messageId);
-        break;
-    }
-  });
+        // 2. CLOSE MODAL & RESUME
+        closeBtn.onclick = () => {
+            log("Action: Requesting Play & Closing Modal");
+            send('requestPlay'); // Player should resume video
+            modal.style.display = 'none';
+            entryBtn.style.display = 'block';
 
-  // 3. THE TRIGGER: This starts the whole engine
-  // This is what the IAB "Survey" example does inside its constructor
-  window.parent.postMessage({
-    messageId: messageCounter++,
-    messageName: 'SIMID:Creative:createSession',
-    timestamp: Date.now(),
-    args: {}
-  }, "*");
-})();
+            document.getElementById(VUDOO_CONFIG.containerId).innerHTML = '';
+        };
+
+        // 3. ITEM CLICK (Click-Thru)
+        window.handleItemClick = (name) => {
+            log(`Action: Click-Thru for ${name}`);
+            send('reportTracking', { interactionId: name });
+            send('clickThru', {
+                clickThruUrl: 'https://www.adidas.com',
+                id: name
+            });
+            window.open('https://www.adidas.com', '_blank');
+        };
+
+        // 4. START HANDSHAKE
+        send('createSession');
+        log("Handshake: createSession sent to player.");
