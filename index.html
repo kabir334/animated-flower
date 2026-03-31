@@ -51,7 +51,7 @@
         // If Player sends START, we RESOLVE and SHOW
         else if (type === 'SIMID:Player:startCreative') {
             send('resolve', {}, data.messageId);
-            document.getElementById('overlay').style.display = 'flex';
+            document.getElementById('ad-layer').style.display = 'flex';
         }
     });
 
