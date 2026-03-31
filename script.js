@@ -19,13 +19,13 @@
   // 2. Logic to listen to the Player
   window.addEventListener('message', (event) => {
     const data = event.data;
-    if (!data || !data.messageName) return;
+    if (!data || !data.type) return;
 
-    console.log("<< FROM PLAYER:", data.messageName);
+    console.log("<< FROM PLAYER:", data.type);
 
     if (data.sessionId) sessionId = data.sessionId;
 
-    switch (data.messageName) {
+    switch (data.type) {
       case 'SIMID:Player:init':
         // The IAB protocol MUST resolve init to continue
         send('SIMID:Creative:resolve', {}, data.messageId);
