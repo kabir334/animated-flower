@@ -1,69 +1,204 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>WORKING SIMID</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>adidas Special Collection</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; overflow: hidden; }
-        #ad-layer {
-            display: none; /* Hidden until Player:start */
+        /* ──────────────── CSS ──────────────── */
+        :root {
+            --primary-color: #0071C5; /* Clean blue */
+            --text-main: #111;
+            --text-sub: #444;
+            --bg-card: #fff;
+            --border-radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body, html { 
+            width: 100%; height: 100%; 
+            background: transparent; overflow: hidden; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+        }
+
+        /* Full-screen Overlay (Hidden by default) */
+        #simid-overlay {
+            display: none; /* Player will trigger 'flex' on START */
             width: 100%; height: 100%;
             position: absolute; top: 0; left: 0;
-            background: rgba(255, 0, 0, 0.5); /* Red tint so you SEE it */
-            color: white; flex-direction: column; justify-content: center; align-items: center;
+            background: rgba(0, 0, 0, 0.6); /* Dim background */
+            justify-content: center; align-items: center;
+            z-index: 9999;
         }
+
+        /* The Modal Card */
+        .modal {
+            background: var(--bg-card);
+            width: 90%; max-width: 360px;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            animation: modalFadeIn 0.4s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Close Button (X) */
+        .close-x {
+            position: absolute; top: 12px; right: 15px;
+            background: none; border: none;
+            font-size: 20px; color: #aaa;
+            cursor: pointer; line-height: 1;
+        }
+        .close-x:hover { color: #555; }
+
+        /* Icon/Brand Header */
+        .brand-icon {
+            font-size: 32px; margin-bottom: 15px;
+        }
+
+        /* Text Styles */
+        h2 { font-size: 20px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
+        p { font-size: 14px; color: var(--text-sub); line-height: 1.5; margin-bottom: 25px; }
+
+        /* The 2 Clickable Options (Survey/Choice) */
+        .options-container {
+            display: flex; gap: 10px; margin-bottom: 20px;
+        }
+        .option-btn {
+            flex: 1; padding: 12px; font-size: 13px;
+            border: 1px solid #ddd; border-radius: 8px;
+            background: #f9f9f9; color: var(--text-main);
+            cursor: pointer; transition: all 0.2s;
+        }
+        .option-btn:hover { border-color: var(--primary-color); color: var(--primary-color); background: #f0f8ff; }
+
+        /* Main SHOP CTA (Blue) */
+        #shop-btn {
+            width: 100%; padding: 14px;
+            font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+            color: #fff; background-color: var(--primary-color);
+            border: none; border-radius: 40px;
+            cursor: pointer; transition: background 0.2s;
+        }
+        #shop-btn:hover { background-color: #005A9C; }
+
     </style>
 </head>
 <body>
-    <div id="ad-layer">
-        <h1>SIMID IS WORKING!</h1>
-        <button id="cta" style="padding:20px;">CLICK ME</button>
+
+    <div id="simid-overlay">
+        <div class="modal">
+            <button class="close-x" id="close-x-btn">&#x2715;</button>
+            <div class="brand-icon">👟</div>
+            <h2>adidas Ultraboost</h2>
+            <p>Select your favorite style to explore.</p>
+
+            <div class="options-container">
+                <button class="option-btn" id="opt-1">Performance Black</button>
+                <button class="option-btn" id="opt-2">Triple White</button>
+            </div>
+
+            <button id="shop-btn">Shop Collection</button>
+        </div>
     </div>
 
     <script>
         (function() {
-            let sessionId = btoa(Math.random()).substring(0, 16); // Simple unique ID
-    let msgId = 1;
+            let sessionId = btoa(Math.random()).substring(0, 16);
+            let msgId = 1;
+            const ADIDAS_URL = 'https://www.adidas.com';
 
-    // 1. The Core Sending Logic (Must be Stringified)
-    function send(type, args = {}, corrId = null) {
-        const msg = {
-            sessionId: sessionId,
-            messageId: msgId++,
-            type: type,
-            timestamp: Date.now(),
-            args: corrId ? { messageId: corrId, value: args } : args
-        };
-        window.parent.postMessage(JSON.stringify(msg), "*");
-    }
+            // 1. Core Sending Logic (Must be Stringified)
+            function send(type, args = {}, corrId = null) {
+                const msg = {
+                    sessionId: sessionId,
+                    messageId: msgId++,
+                    type: type,
+                    timestamp: Date.now(),
+                    args: corrId ? { messageId: corrId, value: args } : args
+                };
+                window.parent.postMessage(JSON.stringify(msg), "*");
+                console.log(">> SENT:", type);
+            }
 
-    // 2. The Handshake Logic
-    window.addEventListener('message', (e) => {
-        let data;
-        try { data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; } catch (err) { return; }
-        if (!data || !data.type) return;
+            // 2. State & Handshake Listener
+            window.addEventListener('message', (e) => {
+                let data;
+                try { data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; } catch (err) { return; }
+                if (!data || !data.type) return;
 
-        const type = data.type;
+                const type = data.type;
 
-        // If Player sends INIT, we RESOLVE it
-        if (type === 'SIMID:Player:init') {
-            send('resolve', {}, data.messageId);
-        } 
-        // If Player sends START, we RESOLVE and SHOW
-        else if (type === 'SIMID:Player:startCreative') {
-            send('resolve', {}, data.messageId);
-            document.getElementById('ad-layer').style.display = 'flex';
-        }
-    });
+                // Player INIT
+                if (type === 'SIMID:Player:init') {
+                    send('resolve', {}, data.messageId);
+                } 
+                // Player START (Show Overlay)
+                else if (type === 'SIMID:Player:startCreative') {
+                    send('resolve', {}, data.messageId);
+                    document.getElementById('simid-overlay').style.display = 'flex';
+                }
+                // Player STOP (Hide Overlay)
+                else if (type === 'SIMID:Player:adStopped') {
+                    send('resolve', {}, data.messageId);
+                    document.getElementById('simid-overlay').style.display = 'none';
+                }
+            });
 
-    // 3. The "First Move" (Create Session)
-    // Sending the message as 'createSession' (no prefix) is the IAB standard
-    window.parent.postMessage(JSON.stringify({
-        sessionId: sessionId,
-        messageId: msgId++,
-        type: 'createSession',
-        timestamp: Date.now(),
-        args: {}
-    }), "*");
+            // 3. User Interactions (The new calls)
+            
+            // Function to handle clicking an "Option" (e.g., track a choice)
+            function handleOptionClick(optionId) {
+                console.log("[Option Selected]", optionId);
+                // In SIMID, standard "Choice" tracking is best reported as a generic interaction tracking event
+                send('Creative:reportTracking', { interactionId: optionId });
+                // We provide visual feedback that the click worked (simulating navigation or tracking)
+                alert("Nice Choice: " + optionId);
+            }
+
+            // Main SHOP Button Click (CRITICAL CLICK-THRU)
+            document.getElementById('shop-btn').onclick = () => {
+                console.log("[Shop Button Click]");
+                // Send standard clickThru message. Player uses this for metrics.
+                send('Creative:clickThru', {
+                    clickThruUrl: ADIDAS_URL,
+                    id: 'shop-btn'
+                });
+                // In a sandboxed iframe, we try to open it here, 
+                // but standard SIMID requires the PLAYER to open the link.
+                // However, we include this as a fallback.
+                window.open(ADIDAS_URL, '_blank');
+            };
+
+            // Option 1
+            document.getElementById('opt-1').onclick = () => handleOptionClick('black_ultraboost');
+            // Option 2
+            document.getElementById('opt-2').onclick = () => handleOptionClick('white_ultraboost');
+
+            // Close (X) button
+            document.getElementById('close-x-btn').onclick = () => {
+                document.getElementById('simid-overlay').style.display = 'none';
+                // Standard 'REQUEST_STOP' so the player can end the ad
+                send('Creative:requestStop', {});
+            };
+
+            // 4. Create Session (Starts the sequence)
+            window.parent.postMessage(JSON.stringify({
+                sessionId: sessionId,
+                messageId: msgId++,
+                type: 'createSession',
+                timestamp: Date.now(),
+                args: {}
+            }), "*");
+            console.log(">> SENT: createSession");
+
         })();
     </script>
 </body>
