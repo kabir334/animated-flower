@@ -4,22 +4,11 @@
   <meta charset="UTF-8">
   <title>SIMID</title>
   <style>
-    /*
-      Use BODY itself as the overlay — no wrapper div.
-      Body is the one element guaranteed to have the iframe's dimensions.
-      We make it a flex container and center the card inside it.
-    */
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-    html {
+    html, body {
       width: 100%;
       height: 100%;
-    }
-
-    body {
-      width: 100%;
-      height: 100%;
-      min-height: 100px;
       background: rgba(0, 0, 0, 0.7);
       display: flex;
       align-items: center;
@@ -58,7 +47,6 @@
       position: absolute; top: 8px; right: 10px;
       background: none; border: none;
       font-size: 18px; color: #aaa; cursor: pointer;
-      line-height: 1;
     }
   </style>
 </head>
@@ -75,7 +63,10 @@
 (function() {
   var msgId = 1;
   var sessionId = null;
+  var playerWidth = 0;
+  var playerHeight = 0;
 
+  /* ── send any SIMID:Creative message ── */
   function send(type, args, correlationId) {
     var msg = {
       sessionId:   sessionId,
@@ -87,24 +78,82 @@
       args:        args || {}
     };
     if (correlationId != null) msg.correlationId = correlationId;
+    console.log('[SIMID >>]', msg.type, JSON.stringify(msg.args));
     window.parent.postMessage(msg, '*');
   }
 
-  function hide() {
-    document.body.style.display = 'none';
+  /*
+   * ── requestResize ────────────────────────────────────────────────
+   * This is the key call. The SIMID iframe starts at 0x0 because the
+   * player waits for the creative to declare how much space it needs.
+   * We ask for 100% of the video player area using the dimensions
+   * the player told us about in the environmentData of the init message.
+   * If we haven't received init yet, we use the window's parent
+   * dimensions as a fallback, or a safe default of 640x480.
+   */
+  function requestResize(w, h) {
+    w = w || playerWidth || 640;
+    h = h || playerHeight || 480;
+    console.log('[SIMID] requesting resize to', w, 'x', h);
+    send('requestResize', {
+      width:  w,
+      height: h
+    });
   }
 
+  /* ── hide overlay ── */
+  function hide() {
+    document.body.style.display = 'none';
+    document.body.style.background = 'transparent';
+  }
+
+  /* ── message handler ── */
   window.addEventListener('message', function(e) {
     var d = e.data;
     if (typeof d === 'string') { try { d = JSON.parse(d); } catch(_) { return; } }
     if (!d || !d.type) return;
     var t = d.type.toLowerCase();
     if (t.indexOf('simid') === -1) return;
+
+    console.log('[SIMID <<]', d.type, 'sessionId:', d.sessionId, 'msgId:', d.messageId);
+
     if (d.sessionId) sessionId = d.sessionId;
+
+    /* always resolve every inbound message */
     if (d.messageId != null) send('resolve', {}, d.messageId);
-    if (t.indexOf('stop') > -1 || t.indexOf('complete') > -1 || t.indexOf('skip') > -1) hide();
+
+    /* init — player tells us the video player dimensions */
+    if (t.indexOf('init') > -1) {
+      var env = (d.args && d.args.environmentData) || {};
+      playerWidth  = env.playerWidth  || env.width  || 0;
+      playerHeight = env.playerHeight || env.height || 0;
+      console.log('[SIMID] init received, player dims:', playerWidth, 'x', playerHeight);
+      /* Request to fill the full player area */
+      requestResize(playerWidth, playerHeight);
+      return;
+    }
+
+    /* start or play — also request resize here in case init was missed */
+    if (t.indexOf('start') > -1 || t.indexOf('media:play') > -1) {
+      requestResize(playerWidth, playerHeight);
+      return;
+    }
+
+    /* resolve to our resize request — player accepted the new size */
+    if (t.indexOf('resolve') > -1) {
+      console.log('[SIMID] resize accepted by player');
+      console.log('[SIMID] body size now:', document.body.offsetWidth, 'x', document.body.offsetHeight);
+      return;
+    }
+
+    /* end states */
+    if (t.indexOf('stop') > -1 || t.indexOf('complete') > -1 || t.indexOf('skip') > -1) {
+      hide();
+      return;
+    }
   });
 
+  /* ── buttons ── */
   document.getElementById('cta').onclick = function() {
     send('clickThru', { clickThruUrl: 'https://google.com', id: 'cta' });
     window.open('https://google.com', '_blank');
@@ -116,25 +165,50 @@
     send('closeCreative', {});
   };
 
-  /* createSession tells the player the creative is ready */
+  /*
+   * ── createSession ─────────────────────────────────────────────────
+   * Sent immediately and synchronously so the player knows the
+   * creative's listener is ready and will re-send init.
+   */
   window.parent.postMessage({
     sessionId: null, messageId: msgId++,
-    type: 'SIMID:Creative:createSession',
+    type:        'SIMID:Creative:createSession',
     messageName: 'SIMID:Creative:createSession',
     timestamp: Date.now(), version: '1.1', args: {}
   }, '*');
 
-  console.log('[SIMID] body size on load:', document.body.offsetWidth, 'x', document.body.offsetHeight);
+  /*
+   * ── Fallback resize loop ───────────────────────────────────────────
+   * If the player never sends init (as seen with Google IMA which goes
+   * straight to Media:play), we never get playerWidth/playerHeight.
+   * So we also try requestResize repeatedly with fallback dimensions
+   * until the body has actual size.
+   */
+  var resizeAttempts = 0;
+  var resizeTimer = setInterval(function() {
+    resizeAttempts++;
+    var bw = document.body.offsetWidth;
+    var bh = document.body.offsetHeight;
+    console.log('[SIMID] resize attempt', resizeAttempts, '— body size:', bw, 'x', bh);
 
-  /* Log body size again after a tick in case IMA sets iframe dims async */
-  setTimeout(function() {
-    console.log('[SIMID] body size after 100ms:', document.body.offsetWidth, 'x', document.body.offsetHeight);
-  }, 100);
+    if (bw > 0 && bh > 0) {
+      console.log('[SIMID] body has size, stopping resize loop');
+      clearInterval(resizeTimer);
+      return;
+    }
 
-  setTimeout(function() {
-    console.log('[SIMID] body size after 1s:', document.body.offsetWidth, 'x', document.body.offsetHeight);
-  }, 1000);
+    /* Try with player dims if we have them, else use common video sizes */
+    var w = playerWidth  || window.screen.width  || 640;
+    var h = playerHeight || window.screen.height || 480;
+    requestResize(w, h);
 
+    if (resizeAttempts >= 10) {
+      console.log('[SIMID] gave up after 10 resize attempts');
+      clearInterval(resizeTimer);
+    }
+  }, 500);
+
+  console.log('[SIMID] ready, createSession sent');
 })();
 </script>
 </body>
