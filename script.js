@@ -6,9 +6,6 @@ import {
 } from 'https://us.vudoo.io/sdk/shoppable'
 
 const VUDOO_CONFIG = {
-  tagId: '17183949788', 
-  productId: 'B01KJNTV9I',
-  region: 'us',
   containerId: 'vudoo-app-container'
 };
 
@@ -60,6 +57,26 @@ window.addEventListener('message', (e) => {
    */
   if (type === 'SIMID:Player:init') {
       log("Handshake: Resolving Player:init (Video will start now)");
+      const adParams = data.args.adParameters;
+        
+      if (adParams) {
+          try {
+              // Parse the JSON string from the XML
+              const config = JSON.parse(adParams);
+              console.log("Received Config from VAST:", config);
+              
+              // Update your global VUDOO_CONFIG with this live data
+              VUDOO_CONFIG.tagId = config.tagId;
+              VUDOO_CONFIG.productId = config.productId;
+              VUDOO_CONFIG.region = config.region;
+              log("VUDOO_CONFIG", VUDOO_CONFIG)
+              
+              // You can even update UI dynamically
+              document.getElementById('shop-btn-entry').innerText = config.buttonText;
+          } catch (e) {
+              console.error("Failed to parse AdParameters", e);
+          }
+      }
       send('resolve', {}, data.messageId);
   } 
   
