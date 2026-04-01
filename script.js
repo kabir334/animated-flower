@@ -132,7 +132,7 @@ entryBtn.onclick = async () => {
           openShoppableProductPage,
           openShoppableCataloguePage,
         }= await import(sdkUrl)
-        
+
         log("SDK Loaded successfully");
         
         // Use the instance-based approach to ensure the iframe is caught
@@ -150,10 +150,24 @@ entryBtn.onclick = async () => {
         }
 
         // Delay the product page open slightly to let the app initialize
-        setTimeout(() => {
+        // setTimeout(() => {
             log("Opening Product Page: " + VUDOO_CONFIG.productId);
             openShoppableProductPage(app, VUDOO_CONFIG.productId);
-        }, 500);
+        // }, 500);
+
+        onShoppableAppClose(app, () => {
+          log("Vudoo App signaled close. Cleaning up...");
+          
+          // 1. Hide the modal
+          modal.style.display = 'none';
+          entryBtn.style.display = 'block';
+          
+          // 2. Resume the video
+          send('requestPlay');
+          
+          // 3. Clear container to stop any background processes
+          container.innerHTML = '';
+      });
 
     } catch (err) {
         log("Vudoo SDK Error", err);
