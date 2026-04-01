@@ -76,7 +76,9 @@ window.addEventListener("message", (e) => {
         CTALink = config.CTALink
 				log("VUDOO_CONFIG", VUDOO_CONFIG);
 
-				document.getElementById("shop-btn-entry").innerText = config.buttonText;
+        if(buttonText) {
+				  document.getElementById("shop-btn-entry").innerText = config.buttonText;
+        }
 			} catch (e) {
 				console.error("Failed to parse AdParameters", e);
 			}
