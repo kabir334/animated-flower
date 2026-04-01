@@ -1,12 +1,12 @@
-import {
-  createShoppableApp,
-  onShoppableAppClose,
-  openShoppableProductPage,
-  openShoppableCataloguePage,
-} from 'https://us.vudoo.io/sdk/shoppable'
-
 const VUDOO_CONFIG = {
   containerId: 'vudoo-app-container'
+};
+
+const sdkUrls = {
+  AU: "https://vudoo.io/sdk/shoppable",
+  US: "https://us.vudoo.io/sdk/shoppable",
+  UK: "https://uk.vudoo.io/sdk/shoppable",
+  EU: "https://eu.vudoo.io/sdk/shoppable"
 };
 
 function log(msg, obj = "") {
@@ -107,7 +107,7 @@ const modal = document.getElementById('modal-overlay');
 const closeBtn = document.getElementById('close-modal');
 const container = document.getElementById(VUDOO_CONFIG.containerId);
 
-entryBtn.onclick = () => {
+entryBtn.onclick = async () => {
     log("Action: Pause & Load Vudoo App");
     send('requestPause'); 
     modal.style.display = 'flex';
@@ -118,6 +118,22 @@ entryBtn.onclick = () => {
         container.innerHTML = ''; // Clear any previous attempts
 
         log("Initializing Vudoo App...");
+
+        const region = VUDOO_CONFIG.region || 'us';
+        const sdkUrl = sdkUrls[region.toUpperCase()];
+
+        log(`Loading SDK for region: ${region}...`);
+
+        // 2. DYNAMIC IMPORT (Lazy Load)
+        // This only happens once
+        const {
+          createShoppableApp,
+          onShoppableAppClose,
+          openShoppableProductPage,
+          openShoppableCataloguePage,
+        }= await import(sdkUrl)
+        
+        log("SDK Loaded successfully");
         
         // Use the instance-based approach to ensure the iframe is caught
         const app = createShoppableApp({
