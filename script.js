@@ -9,7 +9,7 @@ const sdkUrls = {
 	EU: "https://eu.vudoo.io/sdk/shoppable",
 };
 
-const CTALink = null
+let CTALink = null
 
 function log(msg, obj = "") {
 	console.log(
