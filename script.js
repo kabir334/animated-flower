@@ -49,7 +49,7 @@ window.addEventListener('message', (e) => {
 
   // Use a unified name check for both 'type' and 'messageName'
   const type = data.type || data.messageName;
-  log(`<< RECEIVED: ${type}`, data);
+  // log(`<< RECEIVED: ${type}`, data);
 
   /**
    * 1. THE CRITICAL FIX: Player:init
@@ -57,7 +57,7 @@ window.addEventListener('message', (e) => {
    */
   if (type === 'SIMID:Player:init') {
       log("Handshake: Resolving Player:init (Video will start now)");
-      const adParams = data.args.adParameters;
+      const adParams = data.args.creativeData.adParameters;
         
       if (adParams) {
           try {
