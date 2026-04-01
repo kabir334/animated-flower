@@ -9,7 +9,7 @@ const sdkUrls = {
 	EU: "https://eu.vudoo.io/sdk/shoppable",
 };
 
-let CTALink = null
+const CTALink = null
 
 function log(msg, obj = "") {
 	console.log(
@@ -73,7 +73,7 @@ window.addEventListener("message", (e) => {
 				VUDOO_CONFIG.tagId = config.tagId;
 				VUDOO_CONFIG.productId = config.productId;
 				VUDOO_CONFIG.region = config.region;
-        CTALink = config.CTALink
+                CTALink = config.CTALink
 				log("VUDOO_CONFIG", VUDOO_CONFIG);
 
 				document.getElementById("shop-btn-entry").innerText = config.buttonText;
@@ -140,8 +140,12 @@ entryBtn.onclick = async () => {
 			container.appendChild(app.iframe);
 		}
 
-		log("Opening Product Page: " + VUDOO_CONFIG.productId);
-		openShoppableProductPage(app, VUDOO_CONFIG.productId);
+    if(VUDOO_CONFIG.productId) {
+      log("Opening Product Page: " + VUDOO_CONFIG.productId);
+      openShoppableProductPage(app, VUDOO_CONFIG.productId);
+    } else {
+      openShoppableCataloguePage(app);
+    }
 
 		onShoppableAppClose(app, () => {
 			modal.style.display = "none";
