@@ -100,6 +100,16 @@
 <![CDATA[ https://animated-flower-bay.vercel.app/ ]]>
                                        
 </InteractiveCreativeFile>
+<AdParameters xmlEncoded="false">
+    <![CDATA[
+      {
+        "tagId": "17183949788",
+        "productId": "B01KJNTV9I",
+        "buttonText": "SHOP at Oceansprayanz",
+        "themeColor": "#00ff00"
+      }
+    ]]>
+  </AdParameters>
 <Mezzanine>
 <![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-4da2d506dbde4f929a786f53c9cb298d?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260331%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260331T133329Z&X-Amz-Signature=9bfaa0acd82f8a376ac11b8e44455032ce2b28ccdfda1b0d8c48622929224b2e ]]>
 </Mezzanine>
