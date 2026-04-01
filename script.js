@@ -76,7 +76,7 @@ window.addEventListener("message", (e) => {
         CTALink = config.CTALink
 				log("VUDOO_CONFIG", VUDOO_CONFIG);
 
-        if(buttonText) {
+        if(config.buttonText) {
 				  document.getElementById("shop-btn-entry").innerText = config.buttonText;
         }
 			} catch (e) {
