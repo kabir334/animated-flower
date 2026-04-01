@@ -37,7 +37,7 @@ function send(type, args = {}, corrId = null) {
       };
   }
 
-  log(`>> SENDING: ${name}`, msg);
+  // log(`>> SENDING: ${name}`, msg);
   window.parent.postMessage(JSON.stringify(msg), "*");
 }
 window.addEventListener('message', (e) => {
@@ -85,7 +85,7 @@ window.addEventListener('message', (e) => {
    * The player sends this once the video actually begins.
    */
   else if (type === 'SIMID:Player:startCreative') {
-      log("Handshake: Resolving Player:startCreative");
+      // log("Handshake: Resolving Player:startCreative");
       send('resolve', {}, data.messageId);
       
       // Reveal the button only after the video is officially running
