@@ -102,6 +102,7 @@ class SimidProtocol {
     }
 
     this.target_.postMessage(JSON.stringify(msg), '*');
+    console.log("msg", msg)
     return Promise.resolve();
   }
 
@@ -130,6 +131,7 @@ class SimidProtocol {
   }
 
   receiveMessage(event) {
+    console.log("received", event)
     if (!event || !event.data) return;
     let d;
     try { d = typeof event.data === 'string' ? JSON.parse(event.data) : event.data; }
