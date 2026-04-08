@@ -183,12 +183,12 @@ class SimidProtocol {
 
 const DEALS = {
   city: [
-    { dest: '🗼 Tokyo',       price: 'From $420 return', url: 'https://example.com/tokyo' },
-    { dest: '🗽 New York',    price: 'From $380 return', url: 'https://example.com/nyc'   },
+    { dest: '🗼 Tokyo',       price: 'From $420 return', url: `https://www.trip.com/flights/showfarefirst?dcity=tyo&acity=nyc&triptype=rt` },
+    { dest: '🗽 New York',    price: 'From $380 return', url: `https://www.trip.com/flights/showfarefirst?dcity=nyc&acity=tyo&triptype=rt`   },
   ],
   nature: [
-    { dest: '🌴 Bali',        price: 'From $510 return', url: 'https://example.com/bali'    },
-    { dest: '🧊 Iceland',     price: 'From $490 return', url: 'https://example.com/iceland' },
+    { dest: '🌴 Bali',        price: 'From $510 return', url: `https://www.trip.com/flights/showfarefirst?dcity=dps&acity=nyc&triptype=rt`    },
+    { dest: '🧊 Iceland',     price: 'From $490 return', url: `https://www.trip.com/flights/showfarefirst?dcity=is&acity=nyc&triptype=rt` },
   ],
 };
 
