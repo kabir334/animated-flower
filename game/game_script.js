@@ -218,7 +218,7 @@ class JuiceGame {
   }
 
   onGameStart(e) {
-    this.stage.style.display = "block";
+    this.stage.style.display = "flex";
     this.promoBtn.style.display = "none";
     this.protocol.sendMessage(CreativeMessage.REQUEST_PAUSE, {})
       .catch(() => {});
