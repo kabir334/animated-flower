@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Squeeze Your Flavor</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: transparent;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* ── Stage ── */
+    #stage {
+      position: relative;
+      width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px 14px;
+      background: radial-gradient(ellipse at 50% 30%,
+        rgba(255,160,0,0.18) 0%,
+        rgba(255,80,0,0.08) 50%,
+        rgba(0,0,0,0.55) 100%);
+    }
+
+    /* ── Top bar ── */
+    #top-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    #brand {
+      font-size: clamp(11px, 2.2vw, 15px);
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      color: #fff;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+    }
+
+    #score-box {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,200,0,0.35);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: clamp(11px, 2vw, 14px);
+      font-weight: 700;
+      color: #ffe066;
+    }
+
+    /* ── Fun fact banner ── */
+    #fact-banner {
+      width: 100%;
+      text-align: center;
+      font-size: clamp(10px, 1.9vw, 13px);
+      color: #ffe;
+      background: rgba(255,140,0,0.25);
+      border: 1px solid rgba(255,180,0,0.3);
+      border-radius: 10px;
+      padding: 5px 10px;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      flex-shrink: 0;
+      min-height: 28px;
+    }
+    #fact-banner.show { opacity: 1; }
+
+    /* ── Game area ── */
+    #game-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(6px, 2vh, 14px);
+      width: 100%;
+      position: relative;
+    }
+
+    /* ── Prompt ── */
+    #tap-prompt {
+      font-size: clamp(12px, 2.5vw, 16px);
+      font-weight: 700;
+      color: rgba(255,255,255,0.85);
+      letter-spacing: 0.04em;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+      transition: opacity 0.3s;
+    }
+
+    /* ── Fruit button ── */
+    #fruit-btn {
+      position: relative;
+      width: clamp(90px, 22vw, 140px);
+      height: clamp(90px, 22vw, 140px);
+      border-radius: 50%;
+      background: none;
+      border: none;
+      cursor: pointer;
+      outline: none;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    #fruit-emoji {
+      font-size: clamp(64px, 15vw, 110px);
+      display: block;
+      line-height: 1;
+      transition: transform 0.1s ease;
+      filter: drop-shadow(0 6px 18px rgba(255,100,0,0.55));
+    }
+
+    #fruit-btn:active #fruit-emoji,
+    #fruit-btn.squeeze #fruit-emoji {
+      transform: scale(0.78);
+    }
+
+    /* Ripple ring on tap */
+    .ripple {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: rgba(255,200,0,0.25);
+      animation: rippleOut 0.5s ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes rippleOut {
+      to { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+    }
+
+    /* Tap count badge */
+    #tap-count-badge {
+      position: absolute;
+      top: -8px; right: -8px;
+      background: #ff5500;
+      color: #fff;
+      border-radius: 50%;
+      width: clamp(22px, 5vw, 30px);
+      height: clamp(22px, 5vw, 30px);
+      font-size: clamp(10px, 2vw, 14px);
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(255,80,0,0.6);
+      animation: badgePop 0.2s ease;
+    }
+    @keyframes badgePop {
+      0%   { transform: scale(1.6); }
+      100% { transform: scale(1); }
+    }
+
+    /* ── Splat particles ── */
+    .splat {
+      position: absolute;
+      pointer-events: none;
+      font-size: clamp(14px, 3vw, 22px);
+      animation: splatFly 0.7s ease-out forwards;
+      z-index: 5;
+    }
+    @keyframes splatFly {
+      0%   { opacity: 1; transform: translate(0,0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.3); }
+    }
+
+    /* ── Glass area ── */
+    #glass-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    #glass-label {
+      font-size: clamp(9px, 1.8vw, 12px);
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    #glass {
+      position: relative;
+      width: clamp(38px, 9vw, 58px);
+      height: clamp(52px, 12vw, 78px);
+      border: 2px solid rgba(255,255,255,0.5);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.06);
+    }
+
+    #juice-fill {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 0%;
+      background: linear-gradient(180deg, #ffb300, #ff5500);
+      transition: height 0.4s cubic-bezier(0.34,1.4,0.64,1);
+      border-radius: 0 0 6px 6px;
+    }
+
+    #juice-fill::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 200%; height: 8px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 50%;
+      animation: wave 1.8s linear infinite;
+    }
+    @keyframes wave {
+      to { left: 0%; }
+    }
+
+    /* ── Reward screen ── */
+    #reward-screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(8px, 2vh, 14px);
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+      z-index: 30;
+      padding: 20px;
+      text-align: center;
+    }
+
+    #reward-screen.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    #reward-icon {
+      font-size: clamp(40px, 10vw, 70px);
+      animation: bounceIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes bounceIn {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    #reward-headline {
+      font-size: clamp(16px, 3.5vw, 24px);
+      font-weight: 800;
+      color: #fff;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    }
+
+    #reward-sub {
+      font-size: clamp(11px, 2vw, 14px);
+      color: rgba(255,255,255,0.7);
+    }
+
+    #promo-box {
+      background: rgba(255,200,0,0.15);
+      border: 2px dashed rgba(255,200,0,0.6);
+      border-radius: 12px;
+      padding: 10px 20px;
+      animation: pulseGlow 2s ease-in-out infinite;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 rgba(255,200,0,0); }
+      50%       { box-shadow: 0 0 20px rgba(255,200,0,0.35); }
+    }
+
+    #promo-code {
+      font-size: clamp(18px, 4vw, 28px);
+      font-weight: 900;
+      color: #ffe066;
+      letter-spacing: 0.15em;
+    }
+
+    #promo-hint {
+      font-size: clamp(9px, 1.7vw, 12px);
+      color: rgba(255,240,180,0.6);
+      margin-top: 2px;
+    }
+
+    #cta-btn {
+      background: linear-gradient(90deg, #ff8c00, #ff4500);
+      color: #fff;
+      border: none;
+      border-radius: 40px;
+      padding: clamp(10px,2.5vh,14px) clamp(24px,6vw,40px);
+      font-size: clamp(13px, 2.5vw, 17px);
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      box-shadow: 0 4px 20px rgba(255,80,0,0.5);
+      transition: filter 0.2s, transform 0.15s;
+      animation: bounceIn 0.6s 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    #cta-btn:hover { filter: brightness(1.15); transform: scale(1.04); }
+
+    /* ── Confetti canvas ── */
+    #confetti-canvas {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 25;
+    }
+
+    /* ── Progress bar ── */
+    #progress-bar {
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 3px;
+      width: 0%;
+      background: linear-gradient(90deg, #ff8c00, #ffe066);
+      transition: width 0.3s linear;
+      z-index: 40;
+    }
+  </style>
+</head>
+<body>
+<div id="stage">
+
+  <div id="top-bar">
+    <div id="brand">🍊 JUICI</div>
+    <div id="score-box">Score: <span id="score-val">0</span></div>
+  </div>
+
+  <div id="fact-banner"></div>
+
+  <div id="game-area">
+    <div id="tap-prompt">Tap the fruit to squeeze your juice!</div>
+
+    <button id="fruit-btn" aria-label="Squeeze the fruit">
+      <span id="fruit-emoji">🍊</span>
+      <span id="tap-count-badge">0</span>
+    </button>
+
+    <div id="glass-wrap">
+      <div id="glass-label">Your glass</div>
+      <div id="glass">
+        <div id="juice-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reward screen (shown when glass is full) -->
+  <div id="reward-screen">
+    <canvas id="confetti-canvas"></canvas>
+    <div id="reward-icon">🎉</div>
+    <div id="reward-headline">Your Juice is Ready!</div>
+    <div id="reward-sub">You unlocked an exclusive deal</div>
+    <div id="promo-box">
+      <div id="promo-code">JUICI20</div>
+      <div id="promo-hint">20% off your first order</div>
+    </div>
+    <button id="cta-btn">Order Now →</button>
+  </div>
+
+  <div id="progress-bar"></div>
+</div>
+
+<script src="game/game_script.js"></script>
+</body>
+</html>
