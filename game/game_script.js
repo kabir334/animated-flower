@@ -133,7 +133,7 @@ class SimidProtocol {
 ═══════════════════════════════════════════════════════════════════ */
 
 const MAX_TAPS   = 10;   // taps needed to fill the glass
-const CTA_URL    = 'https://example.com/juici-order';
+const CTA_URL    = 'https://www.amazon.com/Ocean-Spray%C2%AE-Cran-Cherry%C2%AE-Cranberry-Cherry/dp/B003WNXEZU';
 const SPLATS     = ['💦','🍊','✨','🫧','⚡'];
 
 const FUN_FACTS  = [
@@ -161,6 +161,9 @@ class JuiceGame {
     this.factTimer   = null;
 
     /* DOM refs */
+    this.promoBtn     = document.getElementById('promo-btn');
+    this.stage        = document.getElementById('stage');
+    this.closeBtn     = document.getElementById('sidebar-close');
     this.fruitBtn     = document.getElementById('fruit-btn');
     this.fruitEmoji   = document.getElementById('fruit-emoji');
     this.badge        = document.getElementById('tap-count-badge');
@@ -205,9 +208,23 @@ class JuiceGame {
 
   /* ── UI bindings ─────────────────────────────────────────────── */
   bindUI() {
+    this.promoBtn.addEventListener('click',      e => this.onGameStart(e));
+    this.promoBtn.addEventListener('touchstart', e => { e.preventDefault(); this.onGameStart(e); }, { passive: false });
+    this.closeBtn.addEventListener('click',      e => this.onClose(e));
+    this.closeBtn.addEventListener('touchstart', e => { e.preventDefault(); this.onClose(e); }, { passive: false });
     this.fruitBtn.addEventListener('click',      e => this.onTap(e));
     this.fruitBtn.addEventListener('touchstart', e => { e.preventDefault(); this.onTap(e); }, { passive: false });
     document.getElementById('cta-btn').addEventListener('click', () => this.onCTA());
+  }
+
+  onGameStart(e) {
+    this.stage.style.display = "block";
+    this.promoBtn.style.display = "none";
+  }
+
+  onClose(e) {
+    this.stage.style.display = "none";
+    this.promoBtn.style.display = "block";
   }
 
   /* ── Tap handler ─────────────────────────────────────────────── */
