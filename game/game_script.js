@@ -220,11 +220,17 @@ class JuiceGame {
   onGameStart(e) {
     this.stage.style.display = "block";
     this.promoBtn.style.display = "none";
+    this.protocol.sendMessage(CreativeMessage.REQUEST_PAUSE, {})
+      .catch(() => {});
+
   }
 
   onClose(e) {
     this.stage.style.display = "none";
     this.promoBtn.style.display = "block";
+    this.protocol.sendMessage(CreativeMessage.REQUEST_PLAY, {})
+      .catch(() => {});
+
   }
 
   /* ── Tap handler ─────────────────────────────────────────────── */
