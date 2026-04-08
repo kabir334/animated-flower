@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Travel Vibe Matcher</title>
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: transparent;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #fff;
+    }
+
+    /* ── Root stage ── */
+    #stage {
+      position: relative;
+      width: 100%; height: 100%;
+    }
+
+    /* ════════════════════════════════════════
+       CHOICE OVERLAY — shown at 4 s
+    ════════════════════════════════════════ */
+    #choice-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+      z-index: 10;
+      padding: 20px;
+    }
+
+    #choice-overlay.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    #choice-overlay h2 {
+      font-size: clamp(14px, 3vw, 22px);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+      text-align: center;
+    }
+
+    .cards-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+    }
+
+    /* Glassmorphism card */
+    .vibe-card {
+      flex: 1 1 160px;
+      max-width: 220px;
+      min-width: 140px;
+      padding: 24px 18px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+      animation: cardPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    .vibe-card:nth-child(2) { animation-delay: 0.1s; }
+
+    @keyframes cardPop {
+      from { transform: scale(0.7) translateY(20px); opacity: 0; }
+      to   { transform: scale(1)   translateY(0);    opacity: 1; }
+    }
+
+    .vibe-card:hover {
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+
+    /* City card accent */
+    .vibe-card.city {
+      background: rgba(80, 40, 160, 0.25);
+      border-color: rgba(160,100,255,0.4);
+    }
+    .vibe-card.city:hover { background: rgba(100,60,200,0.35); }
+
+    /* Nature card accent */
+    .vibe-card.nature {
+      background: rgba(20, 100, 60, 0.25);
+      border-color: rgba(80,200,120,0.4);
+    }
+    .vibe-card.nature:hover { background: rgba(30,130,70,0.35); }
+
+    .vibe-card .icon {
+      font-size: clamp(28px, 6vw, 48px);
+      margin-bottom: 10px;
+      display: block;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+    }
+
+    .vibe-card h3 {
+      font-size: clamp(13px, 2.5vw, 18px);
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+    }
+
+    .vibe-card p {
+      font-size: clamp(10px, 1.8vw, 13px);
+      opacity: 0.75;
+      line-height: 1.4;
+    }
+
+    /* City glow shimmer */
+    .vibe-card.city::after {
+      content: '';
+      position: absolute;
+      inset: -50%;
+      background: conic-gradient(from 0deg, transparent 0%, rgba(160,100,255,0.15) 30%, transparent 60%);
+      animation: spin 4s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ════════════════════════════════════════
+       SIDEBAR — slides in after choice
+    ════════════════════════════════════════ */
+    #sidebar {
+      position: absolute;
+      top: 0; right: 0;
+      width: clamp(200px, 38%, 280px);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 20px 16px;
+      gap: 12px;
+      transform: translateX(100%);
+      transition: transform 0.55s cubic-bezier(0.22,1,0.36,1);
+      z-index: 20;
+      overflow: hidden;
+    }
+
+    #sidebar.open { transform: translateX(0); }
+
+    /* City sidebar theme */
+    #sidebar.city-theme {
+      background: linear-gradient(160deg,
+        rgba(20,10,50,0.92) 0%,
+        rgba(50,20,120,0.88) 100%);
+      border-left: 1px solid rgba(160,100,255,0.4);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    /* Nature sidebar theme */
+    #sidebar.nature-theme {
+      background: linear-gradient(160deg,
+        rgba(5,30,20,0.92) 0%,
+        rgba(15,70,40,0.88) 100%);
+      border-left: 1px solid rgba(80,200,120,0.4);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    #sidebar-header {
+      font-size: clamp(11px, 2vw, 14px);
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.6;
+      margin-bottom: 4px;
+    }
+
+    #sidebar-title {
+      font-size: clamp(15px, 3vw, 22px);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    /* Deal card */
+    .deal-card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 14px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      animation: dealSlide 0.4s ease both;
+      text-align: left;
+    }
+
+    .deal-card:nth-child(1) { animation-delay: 0.15s; }
+    .deal-card:nth-child(2) { animation-delay: 0.28s; }
+
+    @keyframes dealSlide {
+      from { opacity: 0; transform: translateX(30px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .deal-card:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateX(-3px);
+    }
+
+    .deal-dest {
+      font-size: clamp(13px, 2.5vw, 17px);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .deal-price {
+      font-size: clamp(10px, 1.8vw, 13px);
+      opacity: 0.65;
+      margin-bottom: 8px;
+    }
+
+    .book-btn {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: clamp(10px, 1.6vw, 12px);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      border: none;
+      cursor: pointer;
+      transition: filter 0.2s, transform 0.15s;
+    }
+
+    .book-btn:hover { filter: brightness(1.2); transform: scale(1.04); }
+
+    .city-theme .book-btn {
+      background: linear-gradient(90deg, #a064ff, #6030d0);
+      color: #fff;
+    }
+
+    .nature-theme .book-btn {
+      background: linear-gradient(90deg, #40d080, #1a8040);
+      color: #fff;
+    }
+
+    #sidebar-close {
+      position: absolute;
+      top: 10px; left: 10px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: #fff;
+      border-radius: 50%;
+      width: 26px; height: 26px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    #sidebar-close:hover { background: rgba(255,255,255,0.22); }
+
+    /* Neon line accent for city */
+    .city-theme::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 2px; height: 100%;
+      background: linear-gradient(180deg, transparent, #a064ff, #60a0ff, transparent);
+      animation: neonPulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes neonPulse {
+      0%, 100% { opacity: 0.4; }
+      50%       { opacity: 1; }
+    }
+
+    /* ════════════════════════════════════════
+       PROGRESS BAR
+    ════════════════════════════════════════ */
+    #progress-bar {
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 3px;
+      width: 0%;
+      background: linear-gradient(90deg, #a064ff, #40d0ff);
+      transition: width 0.3s linear;
+      z-index: 30;
+    }
+
+    /* ════════════════════════════════════════
+       BRAND BADGE (top-left)
+    ════════════════════════════════════════ */
+    #brand-badge {
+      position: absolute;
+      top: 12px; left: 12px;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: clamp(10px, 1.8vw, 13px);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      backdrop-filter: blur(8px);
+      z-index: 5;
+      animation: fadeInDown 0.6s ease both;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+<div id="stage">
+  <div id="brand-badge">✈ WANDERLUST</div>
+
+  <!-- Choice overlay shown at 4s -->
+  <div id="choice-overlay">
+    <h2>What's your travel vibe?</h2>
+    <div class="cards-row">
+      <div class="vibe-card city" id="btn-city">
+        <span class="icon">🏙️</span>
+        <h3>City Explorer</h3>
+        <p>Neon lights, skylines &amp; urban energy</p>
+      </div>
+      <div class="vibe-card nature" id="btn-nature">
+        <span class="icon">🏔️</span>
+        <h3>Nature Seeker</h3>
+        <p>Mountains, forests &amp; raw wilderness</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar injected after choice -->
+  <div id="sidebar">
+    <button id="sidebar-close">✕</button>
+    <div id="sidebar-header">TOP PICKS FOR YOU</div>
+    <div id="sidebar-title"></div>
+    <div id="deals-container"></div>
+  </div>
+
+  <div id="progress-bar"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
