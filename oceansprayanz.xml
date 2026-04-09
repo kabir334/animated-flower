@@ -1,110 +1,109 @@
 <VAST version="4.0">
-<Ad id="0ccf4540873d43f881fbff9efb32bc93">
-<InLine>
-<AdSystem version="2.574.0">Polar</AdSystem>
-<AdTitle>Oceansprayanz juices</AdTitle>
-<Description>cb29699856a24f2f9ac3e6f98c1a490d:0ccf4540873d43f881fbff9efb32bc93</Description>
-<Error>
-<![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&paverr=[ERRORCODE]&t=f&pavsv=4.0&pvhref=[PAGEURL] ]]>
-</Error>
-<Impression>
-<![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&t=i&pavsv=4.0&pvhref=[PAGEURL] ]]>
-</Impression>
-<ViewableImpression>
-<Viewable>
-<![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&pevmm=cpd&pevcpd=1&t=vi&pavsv=4.0&pvhref=[PAGEURL] ]]>
-</Viewable>
-<NotViewable>
-<![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&pevmm=cpd&pevcpd=0&t=vf&pavsv=4.0&pvhref=[PAGEURL] ]]>
-</NotViewable>
-<ViewUndetermined>
-<![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&pevmm=cpd&pavsv=4.0&pevcpd=0&t=vf&pevx=na&pvhref=[PAGEURL] ]]>
-</ViewUndetermined>
-</ViewableImpression>
-<Creatives>
-<Creative id="0ccf4540873d43f881fbff9efb32bc93">
-<Linear>
-<Duration>00:00:19</Duration>
-<TrackingEvents>
-<Tracking event="thirdQuartile">
-<![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&mvq=75&pavsv=4.0&pevimp=d45f3681e62b4ba3b2b2bc5d797f6a81&t=vq&pevid=ee1c477fb59746da8b2a2f6f0442749a&pvhref=[PAGEURL] ]]>
-</Tracking>
-<Tracking event="pause">
-<![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&pavsv=4.0&pevt=pa&pevimp=d45f3681e62b4ba3b2b2bc5d797f6a81&t=v&pevid=ee1c477fb59746da8b2a2f6f0442749a&pvhref=[PAGEURL] ]]>
-</Tracking>
-<Tracking event="complete">
-<![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&mvq=100&pavsv=4.0&pevimp=d45f3681e62b4ba3b2b2bc5d797f6a81&t=vq&pevid=ee1c477fb59746da8b2a2f6f0442749a&pvhref=[PAGEURL] ]]>
-</Tracking>
-<Tracking event="complete">
-<![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&pavsv=4.0&pevt=en&pevimp=d45f3681e62b4ba3b2b2bc5d797f6a81&t=v&pevid=ee1c477fb59746da8b2a2f6f0442749a&pvhref=[PAGEURL] ]]>
-</Tracking>
-<Tracking event="resume">
-<![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&pavsv=4.0&pevt=rm&pevimp=d45f3681e62b4ba3b2b2bc5d797f6a81&t=v&pevid=ee1c477fb59746da8b2a2f6f0442749a&pvhref=[PAGEURL] ]]>
-</Tracking>
-<Tracking event="midpoint">
-<![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&mvq=50&pavsv=4.0&pevimp=d45f3681e62b4ba3b2b2bc5d797f6a81&t=vq&pevid=ee1c477fb59746da8b2a2f6f0442749a&pvhref=[PAGEURL] ]]>
-</Tracking>
-<Tracking event="start">
-<![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&pavsv=4.0&pevt=st&pevimp=d45f3681e62b4ba3b2b2bc5d797f6a81&t=v&pevid=ee1c477fb59746da8b2a2f6f0442749a&pvhref=[PAGEURL] ]]>
-</Tracking>
-<Tracking event="firstQuartile">
-<![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&mvq=25&pavsv=4.0&pevimp=d45f3681e62b4ba3b2b2bc5d797f6a81&t=vq&pevid=ee1c477fb59746da8b2a2f6f0442749a&pvhref=[PAGEURL] ]]>
-</Tracking>
-</TrackingEvents>
-<VideoClicks>
-<ClickTracking>
-<![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&t=c&pavsv=4.0&pvhref=[PAGEURL] ]]>
-</ClickTracking>
-<ClickThrough>
-<![CDATA[ https://www.oceanspray.com/products/cranberry-juice-cocktail-64-oz ]]>
-</ClickThrough>
-</VideoClicks>
-<MediaFiles>
-<MediaFile delivery="progressive" type="video/mp4" width="1920" height="1080" bitrate="5874" maintainAspectRatio="true">
-<![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-48758043a12f4eb9a07de93eb729cf42?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260331%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260331T133329Z&X-Amz-Signature=800eec284144578c4429ce23b2b7a4b061c6fe47d39aefa44552dd43cb3dab43 ]]>
-</MediaFile>
-<MediaFile delivery="progressive" type="video/mp4" width="1920" height="1080" bitrate="8084" maintainAspectRatio="true">
-<![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-401d84131bc345e293a3375d3a49ce9d?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260331%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260331T133329Z&X-Amz-Signature=0b27f03b45997d00dde9a87a335a670cfcaa7d8609660450d5b591312061eb53 ]]>
-</MediaFile>
-<MediaFile delivery="progressive" type="video/mp4" width="1920" height="1080" bitrate="20812" maintainAspectRatio="true">
-<![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-65c690910d43456f8a9d0d374729d1e7?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260331%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260331T133329Z&X-Amz-Signature=57c0e40264146c51c2b35d860d6daaa832a98f2cf4ac462d3606e4a42a3ffbf2 ]]>
-</MediaFile>
-<MediaFile delivery="progressive" type="video/mp4" width="1920" height="1080" bitrate="15395" maintainAspectRatio="true">
-<![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-f1051bb54ae948a196da2d179775d1f8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260331%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260331T133329Z&X-Amz-Signature=bfce670d1a29964331c09e9cae8a72e3e24e1b82d0c08cedbe5cef83eb59ffe1 ]]>
-</MediaFile>
-<MediaFile delivery="progressive" type="video/mp4" width="1920" height="1080" bitrate="4344" maintainAspectRatio="true">
-<![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-7b9535eac37a4c4e94f459e88daa3a06?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260331%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260331T133329Z&X-Amz-Signature=755580c4de162d265d1c4cc97c892fe8d665cd18699f8d5fb778f4c287bab0c4 ]]>
-</MediaFile>
-<MediaFile delivery="progressive" type="video/mp4" width="1280" height="720" bitrate="2258" maintainAspectRatio="true">
-<![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-cfa93e5c54044680ae66d9915e124903?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260331%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260331T133329Z&X-Amz-Signature=9263410af283af69aad2d52efbe252b728460b4b635d13d1df8ea800a14fbee5 ]]>
-</MediaFile>
-<MediaFile delivery="progressive" type="video/mp4" width="1280" height="720" bitrate="1016" maintainAspectRatio="true">
-<![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-6ab270f438104596a27bce1489b60dd1?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260331%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260331T133329Z&X-Amz-Signature=309dc30dae326499ee0f6e19ad47f7a3ef347749e5638799b561e13216b8d340 ]]>
-</MediaFile>
-<MediaFile delivery="progressive" type="video/mp4" width="1280" height="720" bitrate="1428" maintainAspectRatio="true">
-<![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-70d32cbbd562423595638a52cd762efa?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260331%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260331T133329Z&X-Amz-Signature=8e65b94c4b29dbaf3910f843cfb2404cbc861a0e621caf00f61cbc591e0b250a ]]>
-</MediaFile>
-<MediaFile delivery="progressive" type="video/mp4" width="1280" height="720" bitrate="3270" maintainAspectRatio="true">
-<![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-e0950e32d2474dae9d7e58b6c1539506?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260331%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260331T133329Z&X-Amz-Signature=1decec6e553dc5f0de9b68a8c1d67403f0d769b29b250f7e6b30d13243ea948a ]]>
-</MediaFile>
-<MediaFile delivery="progressive" type="video/mp4" width="960" height="540" bitrate="1166" maintainAspectRatio="true">
-<![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-ca33c663573742e6b3e5521535793088?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260331%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260331T133329Z&X-Amz-Signature=25472be9999f2ef8fe68abb8f48c5741d4d19a99e1a0e27cca69fd7c50a5d612 ]]>
-</MediaFile>
-<MediaFile delivery="progressive" type="video/mp4" width="640" height="360" bitrate="551" maintainAspectRatio="true">
-<![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-54f49940e437469d95c6df96f145b94d?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260331%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260331T133329Z&X-Amz-Signature=f36173ae111078e376d1a6dbf5131aecfec49378fb3bf03233c1c8fdd27ca055 ]]>
-</MediaFile>
-<MediaFile delivery="progressive" type="video/mp4" width="416" height="234" bitrate="445" maintainAspectRatio="true">
-<![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-7244ed04f63546d19abe95df9251fcf7?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260331%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260331T133329Z&X-Amz-Signature=ed771aa41aa1040f46c4c449fac25b5e3ac2ce11a72c772d193339c81b0d74cf ]]>
-</MediaFile>
-<InteractiveCreativeFile type="text/html" apiFramework="SIMID" variableDuration="true"> 
-<![CDATA[ https://animated-flower-bay.vercel.app/ ]]>
-                                       
-</InteractiveCreativeFile>
-
-<Mezzanine>
-<![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-4da2d506dbde4f929a786f53c9cb298d?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260331%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260331T133329Z&X-Amz-Signature=9bfaa0acd82f8a376ac11b8e44455032ce2b28ccdfda1b0d8c48622929224b2e ]]>
-</Mezzanine>
-</MediaFiles>
+  <Ad id="0ccf4540873d43f881fbff9efb32bc93">
+  <InLine>
+  <AdSystem version="2.574.0">Polar</AdSystem>
+  <AdTitle>Oceansprayanz juice</AdTitle>
+  <Description>cb29699856a24f2f9ac3e6f98c1a490d:0ccf4540873d43f881fbff9efb32bc93</Description>
+  <Error>
+  <![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&paverr=[ERRORCODE]&t=f&pavsv=4.0&pvhref=[PAGEURL] ]]>
+  </Error>
+  <Impression>
+  <![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&t=i&pavsv=4.0&pvhref=[PAGEURL] ]]>
+  </Impression>
+  <ViewableImpression>
+  <Viewable>
+  <![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&pevmm=cpd&pevcpd=1&t=vi&pavsv=4.0&pvhref=[PAGEURL] ]]>
+  </Viewable>
+  <NotViewable>
+  <![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&pevmm=cpd&pevcpd=0&t=vf&pavsv=4.0&pvhref=[PAGEURL] ]]>
+  </NotViewable>
+  <ViewUndetermined>
+  <![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&pevmm=cpd&pavsv=4.0&pevcpd=0&t=vf&pevx=na&pvhref=[PAGEURL] ]]>
+  </ViewUndetermined>
+  </ViewableImpression>
+  <Creatives>
+  <Creative id="0ccf4540873d43f881fbff9efb32bc93">
+  <Linear>
+  <Duration>00:00:19</Duration>
+  <TrackingEvents>
+  <Tracking event="thirdQuartile">
+  <![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&mvq=75&pavsv=4.0&pevimp=d09b993c6303483f85a84a093d1e9c3b&t=vq&pevid=ee1c477fb59746da8b2a2f6f0442749a&pvhref=[PAGEURL] ]]>
+  </Tracking>
+  <Tracking event="pause">
+  <![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&pavsv=4.0&pevt=pa&pevimp=d09b993c6303483f85a84a093d1e9c3b&t=v&pevid=ee1c477fb59746da8b2a2f6f0442749a&pvhref=[PAGEURL] ]]>
+  </Tracking>
+  <Tracking event="complete">
+  <![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&mvq=100&pavsv=4.0&pevimp=d09b993c6303483f85a84a093d1e9c3b&t=vq&pevid=ee1c477fb59746da8b2a2f6f0442749a&pvhref=[PAGEURL] ]]>
+  </Tracking>
+  <Tracking event="complete">
+  <![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&pavsv=4.0&pevt=en&pevimp=d09b993c6303483f85a84a093d1e9c3b&t=v&pevid=ee1c477fb59746da8b2a2f6f0442749a&pvhref=[PAGEURL] ]]>
+  </Tracking>
+  <Tracking event="resume">
+  <![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&pavsv=4.0&pevt=rm&pevimp=d09b993c6303483f85a84a093d1e9c3b&t=v&pevid=ee1c477fb59746da8b2a2f6f0442749a&pvhref=[PAGEURL] ]]>
+  </Tracking>
+  <Tracking event="midpoint">
+  <![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&mvq=50&pavsv=4.0&pevimp=d09b993c6303483f85a84a093d1e9c3b&t=vq&pevid=ee1c477fb59746da8b2a2f6f0442749a&pvhref=[PAGEURL] ]]>
+  </Tracking>
+  <Tracking event="start">
+  <![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&pavsv=4.0&pevt=st&pevimp=d09b993c6303483f85a84a093d1e9c3b&t=v&pevid=ee1c477fb59746da8b2a2f6f0442749a&pvhref=[PAGEURL] ]]>
+  </Tracking>
+  <Tracking event="firstQuartile">
+  <![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&mvq=25&pavsv=4.0&pevimp=d09b993c6303483f85a84a093d1e9c3b&t=vq&pevid=ee1c477fb59746da8b2a2f6f0442749a&pvhref=[PAGEURL] ]]>
+  </Tracking>
+  </TrackingEvents>
+  <VideoClicks>
+  <ClickTracking>
+  <![CDATA[ https://polarcdn-pentos.com/wt?pavsss=[SERVERSIDE]&pavspm=[PLAYBACKMETHODS]&pavssz=[PLAYERSIZE]&peptc=[GDPRCONSENT]&ob=[APPBUNDLE]&pavspt=[PLACEMENTTYPE]&c=0ccf4540873d43f881fbff9efb32bc93&pas=vast&d=[DOMAIN]&l=vast&n=-1&p=UNKNOWN&w=vast&z=v1.7.16&t=c&pavsv=4.0&pvhref=[PAGEURL] ]]>
+  </ClickTracking>
+  <ClickThrough>
+  <![CDATA[ https://www.oceanspray.com/products/cranberry-juice-cocktail-64-oz ]]>
+  </ClickThrough>
+  </VideoClicks>
+  <MediaFiles>
+  <MediaFile delivery="progressive" type="video/mp4" width="1920" height="1080" bitrate="5874" maintainAspectRatio="true">
+  <![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-48758043a12f4eb9a07de93eb729cf42?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260408%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260408T104745Z&X-Amz-Signature=02dbe916ac4068c33145e503f2af63deef902ebcfe8469e2a9a1f6f48a153a62 ]]>
+  </MediaFile>
+  <MediaFile delivery="progressive" type="video/mp4" width="1920" height="1080" bitrate="8084" maintainAspectRatio="true">
+  <![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-401d84131bc345e293a3375d3a49ce9d?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260408%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260408T104745Z&X-Amz-Signature=42d322374defc48ead9d0bb10204c1d07b74c8fa6a996b0f101335e2880c5ddc ]]>
+  </MediaFile>
+  <MediaFile delivery="progressive" type="video/mp4" width="1920" height="1080" bitrate="20812" maintainAspectRatio="true">
+  <![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-65c690910d43456f8a9d0d374729d1e7?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260408%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260408T104745Z&X-Amz-Signature=b079a7f5fa68234e67b4545a5060cc4709b2ce6143fd22c65e0e6039903d0aa5 ]]>
+  </MediaFile>
+  <MediaFile delivery="progressive" type="video/mp4" width="1920" height="1080" bitrate="15395" maintainAspectRatio="true">
+  <![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-f1051bb54ae948a196da2d179775d1f8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260408%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260408T104745Z&X-Amz-Signature=1e03da4405a073f5d03181f13aea2275693cf2399422e5cef78523f5cdcf0552 ]]>
+  </MediaFile>
+  <MediaFile delivery="progressive" type="video/mp4" width="1920" height="1080" bitrate="4344" maintainAspectRatio="true">
+  <![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-7b9535eac37a4c4e94f459e88daa3a06?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260408%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260408T104745Z&X-Amz-Signature=7d33466b8c60c6aa5bde3ef7be91bcd72f2b988a543df7d4117be746884cca31 ]]>
+  </MediaFile>
+  <MediaFile delivery="progressive" type="video/mp4" width="1280" height="720" bitrate="2258" maintainAspectRatio="true">
+  <![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-cfa93e5c54044680ae66d9915e124903?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260408%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260408T104745Z&X-Amz-Signature=4d5937174c373faccd728522387538b2d32df02d949662aec44935b350c27a15 ]]>
+  </MediaFile>
+  <MediaFile delivery="progressive" type="video/mp4" width="1280" height="720" bitrate="1016" maintainAspectRatio="true">
+  <![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-6ab270f438104596a27bce1489b60dd1?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260408%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260408T104745Z&X-Amz-Signature=f5ec6c19c7e1f0168b537d954e154332b60f34b91e30e75d8ff4c3c37114d911 ]]>
+  </MediaFile>
+  <MediaFile delivery="progressive" type="video/mp4" width="1280" height="720" bitrate="1428" maintainAspectRatio="true">
+  <![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-70d32cbbd562423595638a52cd762efa?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260408%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260408T104745Z&X-Amz-Signature=f5e15b71d1963cf7da02e2c6d1626b9b71e6238eeb0f5ad551ef910d5b3f68d0 ]]>
+  </MediaFile>
+  <MediaFile delivery="progressive" type="video/mp4" width="1280" height="720" bitrate="3270" maintainAspectRatio="true">
+  <![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-e0950e32d2474dae9d7e58b6c1539506?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260408%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260408T104745Z&X-Amz-Signature=f1c860ab4f6be093b4f9874b9800cd6361cbefe40d9b85e56309b87cc8d87d0a ]]>
+  </MediaFile>
+  <MediaFile delivery="progressive" type="video/mp4" width="960" height="540" bitrate="1166" maintainAspectRatio="true">
+  <![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-ca33c663573742e6b3e5521535793088?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260408%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260408T104745Z&X-Amz-Signature=0e06213ac48c05797ac738c7c2c624e71ba1c9cd5f79686f8c5e63bb81e729c4 ]]>
+  </MediaFile>
+  <MediaFile delivery="progressive" type="video/mp4" width="640" height="360" bitrate="551" maintainAspectRatio="true">
+  <![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-54f49940e437469d95c6df96f145b94d?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260408%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260408T104745Z&X-Amz-Signature=5cdaba3e408cdee450b41f7f987832508051133afb48450a500a9f332513fbbc ]]>
+  </MediaFile>
+  <MediaFile delivery="progressive" type="video/mp4" width="416" height="234" bitrate="445" maintainAspectRatio="true">
+  <![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-7244ed04f63546d19abe95df9251fcf7?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260408%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260408T104745Z&X-Amz-Signature=ae2e571cdaf1d34ae793f65ae36f5db81af3c6b8a75f45e3fcbe5d219a109398 ]]>
+  </MediaFile>
+  <InteractiveCreativeFile type="text/html" apiFramework="SIMID" variableDuration="true"> 
+  <![CDATA[ https://animated-flower-bay.vercel.app/ ]]>
+                                         
+  </InteractiveCreativeFile>
+  <Mezzanine>
+  <![CDATA[ https://polarcdn-static.com/r2/polar-videomanager-assets-prod/video-4da2d506dbde4f929a786f53c9cb298d?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=302400&X-Amz-Credential=adedc426a9e92073f2124a91d5cc415f%2F20260408%2Fenam%2Fs3%2Faws4_request&X-Amz-SignedHeaders=host&X-Amz-Date=20260408T104745Z&X-Amz-Signature=1f18afc03cb93907b23ff911444cc3871fed5fd247e249caf4fd4561139ef066 ]]>
+  </Mezzanine>
+  </MediaFiles>
   <AdParameters xmlEncoded="false">
     <![CDATA[
       {
@@ -115,9 +114,9 @@
       }
     ]]>
   </AdParameters>
-</Linear>
-</Creative>
-</Creatives>
-</InLine>
-</Ad>
-</VAST>
+  </Linear>
+  </Creative>
+  </Creatives>
+  </InLine>
+  </Ad>
+  </VAST>
